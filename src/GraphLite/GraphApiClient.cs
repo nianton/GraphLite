@@ -12,8 +12,19 @@ namespace GraphLite
 {
     public partial class GraphApiClient
     {
+        /// <summary>
+        /// The predefined B2C application responsible the tenant's management.
+        /// </summary>
         public const string B2cExtensionsApplicationName = "b2c-extensions-app";
-        private int MaxThumbnailPhotoSize = 100_000;
+
+        /// <summary>
+        /// Max thumbnail photo size in bytes.
+        /// </summary>
+        public const int MaxThumbnailPhotoSize = 100_000;
+
+        /// <summary>
+        /// Patch http method.
+        /// </summary>
         private static readonly HttpMethod HttpMethodPatch = new HttpMethod("PATCH");
 
         private readonly string _tenant;
@@ -24,6 +35,12 @@ namespace GraphLite
         private List<ExtensionProperty> _b2cExtensionsApplicationProperties;
         private NetworkCredential _credential;
 
+        /// <summary>
+        /// Initializes an instance of the GraphApiClient with the necessary application credentials.
+        /// </summary>
+        /// <param name="applicationId">The application identifier.</param>
+        /// <param name="applicationSecret">The application secret.</param>
+        /// <param name="tenant">The B2C tenant e.g. 'mytenant.onmicrosoft.com'</param>
         public GraphApiClient(string applicationId, string applicationSecret, string tenant)
         {
             _tenant = tenant;
@@ -120,14 +137,14 @@ namespace GraphLite
         {
             if (DateTimeOffset.Now > _accessTokenExpiresOn.GetValueOrDefault())
             {
-                await EnsureAccessToken();
+                await EnsureAccessTokenAsync();
 
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             }
         }
 
-        private async Task EnsureAccessToken()
+        private async Task EnsureAccessTokenAsync()
         {
             var client = GetClient();
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"https://login.windows.net/{_tenant}/oauth2/token");

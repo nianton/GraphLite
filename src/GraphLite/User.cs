@@ -7,12 +7,6 @@ using System.Text;
 
 namespace GraphLite
 {
-    public class UserResponse : User, IODataResponse
-    {
-        [JsonProperty("odata.metadata")]
-        public string OdataMetadata { get; set; }
-    }
-
     internal interface IExtensionsApplicationAware
     {
         void SetExtensionsApplicationId(string appId);

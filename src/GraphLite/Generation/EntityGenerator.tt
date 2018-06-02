@@ -68,7 +68,7 @@ namespace GraphLite
 	foreach (var entitySet in sets) {
 		var entitySetName = entitySet.Substring(0, 1).ToLower() + entitySet.Substring(1);
 #>
-		public async Task<GraphList<<#= entitySet #>>> Get<#= entitySet #>sAsync(string query = null, int? top = null, string skipToken = null)
+		public async Task<GraphList<<#= entitySet #>>> <#= entitySet #>GetListAsync(string query = null, int? top = null, string skipToken = null)
 		{
 			var qs = HttpUtility.ParseQueryString(query ?? string.Empty);
 			if (top != null) {
@@ -84,7 +84,7 @@ namespace GraphLite
 			return graphList;
 		}
 
-		public async Task<List<<#= entitySet #>>> GetAll<#= entitySet #>sAsync(string query = null, int? itemsPerPage = null, IProgress<IList<<#= entitySet #>>> progress = null) 
+		public async Task<List<<#= entitySet #>>> <#= entitySet #>GetAllAsync(string query = null, int? itemsPerPage = null, IProgress<IList<<#= entitySet #>>> progress = null) 
 		{
 			var allItems = new List<<#= entitySet #>>();
 
@@ -109,7 +109,7 @@ namespace GraphLite
 			return allItems;
 		}
 	
-		public async Task<List<<#= entitySet #>>> Get<#= entitySet #>sByObjectIdsAsync(params string[] <#= entitySet.ToLower() #>ObjectIds) 
+		public async Task<List<<#= entitySet #>>> <#= entitySet #>GetByObjectIdsAsync(params string[] <#= entitySet.ToLower() #>ObjectIds) 
 		{
 			var body = new
             {
@@ -121,7 +121,7 @@ namespace GraphLite
 			return result.Value;
 		}
 
-		public async Task<<#= entitySet #>> Get<#= entitySet #>Async(string <#= entitySet.ToLower() #>ObjectId)
+		public async Task<<#= entitySet #>> <#= entitySet #>GetAsync(string <#= entitySet.ToLower() #>ObjectId)
 		{
 			try 
 			{
@@ -139,18 +139,18 @@ namespace GraphLite
 			}
 		}
 
-		public async Task<<#= entitySet #>> Create<#= entitySet #>Async(<#= entitySet #> <#= entitySet.ToLower() #>)
+		public async Task<<#= entitySet #>> <#= entitySet #>CreateAsync(<#= entitySet #> <#= entitySet.ToLower() #>)
 		{
 			var result = await ExecuteRequest<<#= entitySet #>>(HttpMethod.Post, $"<#= entitySetName #>s", body: <#= entitySet.ToLower() #>);
 			return result;
 		}
 		
-		public async Task Update<#= entitySet #>Async(string <#= entitySet.ToLower() #>ObjectId, object modelChanges)
+		public async Task <#= entitySet #>UpdateAsync(string <#= entitySet.ToLower() #>ObjectId, object modelChanges)
 		{
 			var result = await ExecuteRequest(HttpMethodPatch, $"<#= entitySetName #>s/{<#= entitySet.ToLower() #>ObjectId}", body: modelChanges);
 		}
 
-		public async Task Delete<#= entitySet #>Async(string <#= entitySet.ToLower() #>ObjectId) 
+		public async Task <#= entitySet #>DeleteAsync(string <#= entitySet.ToLower() #>ObjectId) 
 		{
 			var result = await ExecuteRequest(HttpMethod.Delete, $"<#= entitySetName #>s/{<#= entitySet.ToLower() #>ObjectId}");
 		}

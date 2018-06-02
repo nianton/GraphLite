@@ -8,7 +8,7 @@ namespace GraphLite
 {
     public partial class GraphApiClient
     {
-        public async Task<byte[]> GetUserThumbnailAsync(string userObjectId)
+        public async Task<byte[]> UserGetThumbnailAsync(string userObjectId)
         {
             var resource = $"users/{userObjectId}/thumbnailPhoto";
             var responseMessage = await DoExecuteRequest(HttpMethod.Get, resource, acceptedContentTypes: new[] { "image/jpeg", "image/jpg", "image/png", "image/gif" });
@@ -22,7 +22,7 @@ namespace GraphLite
         /// <param name="userObjectId"></param>
         /// <param name="imageData"></param>
         /// <returns></returns>
-        public async Task UpdateUserThumbnailAsync(string userObjectId, byte[] imageData, string contentType = "image/jpeg")
+        public async Task UserUpdateThumbnailAsync(string userObjectId, byte[] imageData, string contentType = "image/jpeg")
         {
             if (imageData == null)
                 throw new ArgumentNullException(nameof(imageData));
@@ -35,7 +35,7 @@ namespace GraphLite
             var response = await responseMessage.Content.ReadAsStringAsync();
         }
 
-        public async Task ResetUserPasswordAsync(string userObjectId, string newPassword, bool forceChangePasswordNextLogin)
+        public async Task UserResetPasswordAsync(string userObjectId, string newPassword, bool forceChangePasswordNextLogin)
         {
             var body = new
             {
@@ -51,7 +51,14 @@ namespace GraphLite
             var response = await responseMessage.Content.ReadAsStringAsync();
         }
 
-        public async Task InvalidateUserRefreshTokens(string userObjectId)
+        public async Task<List<string>> UserGetMemberGroupsAsync(string userObjectId)
+        {
+            var body = new { securityEnabledOnly = false };
+            var result = await ExecuteRequest<ODataResponse<string>>(HttpMethod.Post, $"users/{userObjectId}/getMemberGroups", body: body);
+            return result.Value;
+        }
+
+        public async Task UserInvalidateRefreshTokensAsync(string userObjectId)
         {
             var resource = $"users/{userObjectId}/invalidateAllRefreshTokens";
             var responseMessage = await DoExecuteRequest(HttpMethod.Post, resource);
