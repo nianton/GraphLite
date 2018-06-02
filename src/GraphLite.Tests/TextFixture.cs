@@ -80,6 +80,13 @@ namespace GraphLite.Tests
         }
 
 
-        public void Dispose() { }
+        public void Dispose()
+        {
+            var testUser = Client.GetUserAsync(TestUserObjectId).Result;
+            if (testUser != null)
+                Client.DeleteUserAsync(TestUserObjectId).Wait();
+
+            Client.DeleteGroupAsync(TestGroupObjectId).Wait();
+        }
     }
 }
