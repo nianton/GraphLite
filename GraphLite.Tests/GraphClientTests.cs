@@ -1,0 +1,200 @@
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Xunit;
+
+namespace GraphLite.Tests
+{
+    [TestCaseOrderer("GraphLite.Tests.TestNameCaseOrderer", "GraphLite.Tests")]
+    public class GraphClientTests : IClassFixture<TestFixture>
+    {
+        GraphApiClient _client;
+        TestFixture _fixture;
+
+        public GraphClientTests(TestFixture fixture)
+        {
+            _fixture = fixture;
+            _client = fixture.Client;
+        }
+
+        [Fact]
+        public void TestGetUsers()
+        {
+            var r = _client.GetUsersAsync().Result;
+            Assert.NotNull(r);
+        }
+
+        [Fact]
+        public void TestGet2Users()
+        {
+            var r = _client.GetUsersAsync(top: 2).Result;
+            Assert.NotNull(r);
+        }
+
+
+        [Fact]
+        public async Task TestGetAllUsers()
+        {
+            var progress = new Progress<List<User>>(items => Console.WriteLine($"items retrieved: {items.Count}"));
+            var allUsers = await _client.GetAllUsersAsync(itemsPerPage: 10);           
+            Assert.NotNull(allUsers);
+        }
+
+
+        [Fact]
+        public void TestGetExtensionsApp()
+        {
+            var r = _client.GetB2cExtensionsApplicationAsync().Result;
+            Assert.NotNull(r);
+        }
+
+        [Fact]
+        public void TestGetSpecificUser()
+        {
+            var r = _client.GetUserAsync(_fixture.TestUserObjectId).Result;
+            Assert.NotNull(r);
+        }
+
+        [Fact]
+        public void TestUpdateSpecificUser()
+        {
+            var user = _client.GetUserAsync(_fixture.TestUserObjectId).Result;
+            user.SetExtendedProperty("TaxRegistrationNumber", "000111000");
+            _client.UpdateUserAsync(user.ObjectId, user.ExtendedProperties).Wait();
+            Assert.NotNull(user);
+        }
+
+        [Fact]
+        public void TestUpdateSpecificUserAlt()
+        {
+            var r = _client.GetUserAsync(_fixture.TestUserObjectId).Result;
+            r.SetExtendedProperty("TaxRegistrationNumber", DateTime.Now.ToString("HHmmsstttt"));
+            _client.UpdateUserAsync(r.ObjectId, r.ExtendedProperties).Wait();
+            Assert.NotNull(r);
+        }
+
+        [Fact]
+        public void TestApplicationExtensions()
+        {
+            var app = _client.GetB2cExtensionsApplicationAsync().Result;
+            var extensions = _client.GetApplicationExtensionsAsync(app.ObjectId).Result;
+            Assert.NotNull(extensions);
+        }
+
+        [Fact]
+        public void TestUpdateSpecificUserThumbnail()
+        {
+            var r = _client.GetUserAsync(_fixture.TestUserObjectId).Result;
+            var thumb = File.ReadAllBytes("thumbnails/random-thumbnail-400.jpg");
+            _client.UpdateUserThumbnailAsync(r.ObjectId, thumb).Wait();
+            Assert.True(true);
+        }
+
+        [Fact]
+        public void TestGetSpecificUserThumbnail()
+        {
+            var user = _client.GetUserAsync(_fixture.TestUserObjectId).Result;
+            if (user.ThumbnailContentType != null)
+            {
+                var r2 = _client.GetUserThumbnailAsync(user.ObjectId).Result;
+                File.WriteAllBytes("test.jpg", r2);
+                Assert.NotNull(r2);
+            }
+            else
+            {
+                Assert.Null(user.ThumbnailContentType);
+            }
+        }
+
+        [Fact]
+        public async Task TestZDeleteSpecificUser()
+        {
+            var userId = _fixture.TestUserObjectId;
+            var r = await _client.GetUserAsync(userId);
+            await _client.DeleteUserAsync(r.ObjectId);
+            var deleted = await _client.GetUserAsync(userId);
+            Assert.Null(deleted);
+        }
+
+        [Fact]
+        public async Task TestGetUsersByObjectIds()
+        {
+            var userId = _fixture.TestUserObjectId;
+            var users = await _client.GetUsersByObjectIdsAsync(userId);
+            Assert.NotEmpty(users);
+        }
+
+        [Fact]
+        public void TestGetGroups()
+        {
+            var groups = _client.GetGroupsAsync().Result;
+            Assert.NotEmpty(groups.Items);
+        }
+
+        [Fact]
+        public void TestGetGroupMembers()
+        {
+            var groups = _client.GetGroupsAsync().Result;
+            var group = groups.Items.ElementAt(1);
+            var memberIds = _client.GetGroupMembers(group.ObjectId).Result;
+            Assert.NotEmpty(memberIds);
+        }
+
+        [Fact]
+        public async Task TestGetMemberGroups()
+        {
+            var userId = _fixture.TestUserObjectId;
+            var user = await _client.GetUserAsync(userId);
+            var groupIds = _client.GetMemberGroups(user.ObjectId).Result;
+            Assert.NotEmpty(groupIds);
+        }
+
+        [Fact]
+        public void TestIsGroupMember()
+        {
+            var isMember = _client.IsMemberOfGroup(_fixture.TestGroupObjectId, _fixture.TestUserObjectId).Result;
+            Assert.True(isMember);
+        }
+
+        [Fact]
+        public async Task TestUserResetPassword()
+        {
+            var userId = _fixture.TestUserObjectId;
+            var user = await _client.GetUserAsync(userId);
+            _client.ResetUserPasswordAsync(user.ObjectId, "Test1234!!", true).Wait();
+        }
+
+        [Fact]
+        public void TestCreateUser()
+        {
+            var id = $"{Guid.NewGuid()}";
+
+            var user = new User
+            {
+                CreationType = "LocalAccount",
+                AccountEnabled = true,
+                DisplayName = $"testuser-{id}@gmail.com",
+                SignInNames = new List<SignInName>
+                {
+                     new SignInName()
+                     {
+                         Type = "emailAddress",
+                         Value = $"nian.t.o.n-{id}@gmail.com"
+                     }
+                },
+                PasswordProfile = new PasswordProfile
+                {
+                    EnforceChangePasswordPolicy = false,
+                    ForceChangePasswordNextLogin = false,
+                    Password = "123abC!!"
+                }
+            };
+
+            var newUser = _client.CreateUserAsync(user).Result;
+            Assert.NotNull(newUser);
+        }
+    }
+}
