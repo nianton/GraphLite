@@ -527,7 +527,7 @@ namespace GraphLite
 			}
 		}
 
-		public async Task<User> CreateUserAsync<User>(User user)
+		public async Task<User> CreateUserAsync(User user)
 		{
 			var result = await ExecuteRequest<User>(HttpMethod.Post, $"users", body: user);
 			return result;
@@ -614,7 +614,7 @@ namespace GraphLite
 			}
 		}
 
-		public async Task<Group> CreateGroupAsync<Group>(Group group)
+		public async Task<Group> CreateGroupAsync(Group group)
 		{
 			var result = await ExecuteRequest<Group>(HttpMethod.Post, $"groups", body: group);
 			return result;
@@ -701,7 +701,7 @@ namespace GraphLite
 			}
 		}
 
-		public async Task<Application> CreateApplicationAsync<Application>(Application application)
+		public async Task<Application> CreateApplicationAsync(Application application)
 		{
 			var result = await ExecuteRequest<Application>(HttpMethod.Post, $"applications", body: application);
 			return result;

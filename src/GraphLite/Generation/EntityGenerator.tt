@@ -139,7 +139,7 @@ namespace GraphLite
 			}
 		}
 
-		public async Task<<#= entitySet #>> Create<#= entitySet #>Async<<#= entitySet #>>(<#= entitySet #> <#= entitySet.ToLower() #>)
+		public async Task<<#= entitySet #>> Create<#= entitySet #>Async(<#= entitySet #> <#= entitySet.ToLower() #>)
 		{
 			var result = await ExecuteRequest<<#= entitySet #>>(HttpMethod.Post, $"<#= entitySetName #>s", body: <#= entitySet.ToLower() #>);
 			return result;
