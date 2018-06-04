@@ -27,15 +27,15 @@ namespace GraphLite.Tests
             );
 
             var testUser = CreateTestUser();
-            testUser = Client.CreateUserAsync(testUser).Result;
+            testUser = Client.UserCreateAsync(testUser).Result;
 
             TestUserObjectId = testUser.ObjectId;
 
             var group = CreateTestGroup();
-            group = Client.CreateGroupAsync(group).Result;
+            group = Client.GroupCreateAsync(group).Result;
             TestGroupObjectId = group.ObjectId;
 
-            Client.AddGroupMember(group.ObjectId, TestUserObjectId).Wait();
+            Client.GroupAddMemberAsync(group.ObjectId, TestUserObjectId).Wait();
         }
 
         private Group CreateTestGroup()
@@ -82,11 +82,11 @@ namespace GraphLite.Tests
 
         public void Dispose()
         {
-            var testUser = Client.GetUserAsync(TestUserObjectId).Result;
+            var testUser = Client.UserGetAsync(TestUserObjectId).Result;
             if (testUser != null)
-                Client.DeleteUserAsync(TestUserObjectId).Wait();
+                Client.UserDeleteAsync(TestUserObjectId).Wait();
 
-            Client.DeleteGroupAsync(TestGroupObjectId).Wait();
+            Client.GroupDeleteAsync(TestGroupObjectId).Wait();
         }
     }
 }

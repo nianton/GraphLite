@@ -456,7 +456,7 @@ namespace GraphLite
 	public partial class GraphApiClient
 	{
 
-		public async Task<GraphList<User>> GetUsersAsync(string query = null, int? top = null, string skipToken = null)
+		public async Task<GraphList<User>> UserGetListAsync(string query = null, int? top = null, string skipToken = null)
 		{
 			var qs = HttpUtility.ParseQueryString(query ?? string.Empty);
 			if (top != null) {
@@ -472,7 +472,7 @@ namespace GraphLite
 			return graphList;
 		}
 
-		public async Task<List<User>> GetAllUsersAsync(string query = null, int? itemsPerPage = null, IProgress<IList<User>> progress = null) 
+		public async Task<List<User>> UserGetAllAsync(string query = null, int? itemsPerPage = null, IProgress<IList<User>> progress = null) 
 		{
 			var allItems = new List<User>();
 
@@ -497,7 +497,7 @@ namespace GraphLite
 			return allItems;
 		}
 	
-		public async Task<List<User>> GetUsersByObjectIdsAsync(params string[] userObjectIds) 
+		public async Task<List<User>> UserGetByObjectIdsAsync(params string[] userObjectIds) 
 		{
 			var body = new
             {
@@ -509,7 +509,7 @@ namespace GraphLite
 			return result.Value;
 		}
 
-		public async Task<User> GetUserAsync(string userObjectId)
+		public async Task<User> UserGetAsync(string userObjectId)
 		{
 			try 
 			{
@@ -527,23 +527,23 @@ namespace GraphLite
 			}
 		}
 
-		public async Task<User> CreateUserAsync(User user)
+		public async Task<User> UserCreateAsync(User user)
 		{
 			var result = await ExecuteRequest<User>(HttpMethod.Post, $"users", body: user);
 			return result;
 		}
 		
-		public async Task UpdateUserAsync(string userObjectId, object modelChanges)
+		public async Task UserUpdateAsync(string userObjectId, object modelChanges)
 		{
 			var result = await ExecuteRequest(HttpMethodPatch, $"users/{userObjectId}", body: modelChanges);
 		}
 
-		public async Task DeleteUserAsync(string userObjectId) 
+		public async Task UserDeleteAsync(string userObjectId) 
 		{
 			var result = await ExecuteRequest(HttpMethod.Delete, $"users/{userObjectId}");
 		}
 
-		public async Task<GraphList<Group>> GetGroupsAsync(string query = null, int? top = null, string skipToken = null)
+		public async Task<GraphList<Group>> GroupGetListAsync(string query = null, int? top = null, string skipToken = null)
 		{
 			var qs = HttpUtility.ParseQueryString(query ?? string.Empty);
 			if (top != null) {
@@ -559,7 +559,7 @@ namespace GraphLite
 			return graphList;
 		}
 
-		public async Task<List<Group>> GetAllGroupsAsync(string query = null, int? itemsPerPage = null, IProgress<IList<Group>> progress = null) 
+		public async Task<List<Group>> GroupGetAllAsync(string query = null, int? itemsPerPage = null, IProgress<IList<Group>> progress = null) 
 		{
 			var allItems = new List<Group>();
 
@@ -584,7 +584,7 @@ namespace GraphLite
 			return allItems;
 		}
 	
-		public async Task<List<Group>> GetGroupsByObjectIdsAsync(params string[] groupObjectIds) 
+		public async Task<List<Group>> GroupGetByObjectIdsAsync(params string[] groupObjectIds) 
 		{
 			var body = new
             {
@@ -596,7 +596,7 @@ namespace GraphLite
 			return result.Value;
 		}
 
-		public async Task<Group> GetGroupAsync(string groupObjectId)
+		public async Task<Group> GroupGetAsync(string groupObjectId)
 		{
 			try 
 			{
@@ -614,23 +614,23 @@ namespace GraphLite
 			}
 		}
 
-		public async Task<Group> CreateGroupAsync(Group group)
+		public async Task<Group> GroupCreateAsync(Group group)
 		{
 			var result = await ExecuteRequest<Group>(HttpMethod.Post, $"groups", body: group);
 			return result;
 		}
 		
-		public async Task UpdateGroupAsync(string groupObjectId, object modelChanges)
+		public async Task GroupUpdateAsync(string groupObjectId, object modelChanges)
 		{
 			var result = await ExecuteRequest(HttpMethodPatch, $"groups/{groupObjectId}", body: modelChanges);
 		}
 
-		public async Task DeleteGroupAsync(string groupObjectId) 
+		public async Task GroupDeleteAsync(string groupObjectId) 
 		{
 			var result = await ExecuteRequest(HttpMethod.Delete, $"groups/{groupObjectId}");
 		}
 
-		public async Task<GraphList<Application>> GetApplicationsAsync(string query = null, int? top = null, string skipToken = null)
+		public async Task<GraphList<Application>> ApplicationGetListAsync(string query = null, int? top = null, string skipToken = null)
 		{
 			var qs = HttpUtility.ParseQueryString(query ?? string.Empty);
 			if (top != null) {
@@ -646,7 +646,7 @@ namespace GraphLite
 			return graphList;
 		}
 
-		public async Task<List<Application>> GetAllApplicationsAsync(string query = null, int? itemsPerPage = null, IProgress<IList<Application>> progress = null) 
+		public async Task<List<Application>> ApplicationGetAllAsync(string query = null, int? itemsPerPage = null, IProgress<IList<Application>> progress = null) 
 		{
 			var allItems = new List<Application>();
 
@@ -671,7 +671,7 @@ namespace GraphLite
 			return allItems;
 		}
 	
-		public async Task<List<Application>> GetApplicationsByObjectIdsAsync(params string[] applicationObjectIds) 
+		public async Task<List<Application>> ApplicationGetByObjectIdsAsync(params string[] applicationObjectIds) 
 		{
 			var body = new
             {
@@ -683,7 +683,7 @@ namespace GraphLite
 			return result.Value;
 		}
 
-		public async Task<Application> GetApplicationAsync(string applicationObjectId)
+		public async Task<Application> ApplicationGetAsync(string applicationObjectId)
 		{
 			try 
 			{
@@ -701,18 +701,18 @@ namespace GraphLite
 			}
 		}
 
-		public async Task<Application> CreateApplicationAsync(Application application)
+		public async Task<Application> ApplicationCreateAsync(Application application)
 		{
 			var result = await ExecuteRequest<Application>(HttpMethod.Post, $"applications", body: application);
 			return result;
 		}
 		
-		public async Task UpdateApplicationAsync(string applicationObjectId, object modelChanges)
+		public async Task ApplicationUpdateAsync(string applicationObjectId, object modelChanges)
 		{
 			var result = await ExecuteRequest(HttpMethodPatch, $"applications/{applicationObjectId}", body: modelChanges);
 		}
 
-		public async Task DeleteApplicationAsync(string applicationObjectId) 
+		public async Task ApplicationDeleteAsync(string applicationObjectId) 
 		{
 			var result = await ExecuteRequest(HttpMethod.Delete, $"applications/{applicationObjectId}");
 		}
