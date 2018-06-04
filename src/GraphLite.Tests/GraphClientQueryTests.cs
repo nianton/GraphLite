@@ -62,16 +62,5 @@ namespace GraphLite.Tests
             Assert.Single(users.Items);
             Assert.Equal(_fixture.TestUserObjectId, users.Items[0].ObjectId);
         }
-
-
-        [Fact]
-        public void TestFetchByUserNameViaStandardQuery()
-        {
-            var signinName = _fixture.TestUser.SignInNames[0].Value;
-            var query = new ODataQuery<User>().Where(u => u.SignInNames, sn => sn.Value, signinName, ODataOperator.Equals);
-            var users = _client.UserGetListAsync(query).Result;
-            Assert.Single(users.Items);
-            Assert.Equal(_fixture.TestUserObjectId, users.Items[0].ObjectId);
-        }
     }
 }
