@@ -84,6 +84,15 @@ namespace GraphLite
 			return graphList;
 		}
 
+		public async Task<GraphList<<#= entitySet #>>> <#= entitySet #>GetListAsync(ODataQuery<<#= entitySet #>> query)
+		{
+			var qs = query?.ToString() ?? string.Empty;
+			var result = await ExecuteRequest<ODataResponse<<#= entitySet #>>>(HttpMethod.Get, "<#= entitySetName #>s", qs);
+            var graphList = new GraphList<<#= entitySet #>>(result.Value, result.GetSkipToken());
+			return graphList;
+		}
+
+
 		public async Task<List<<#= entitySet #>>> <#= entitySet #>GetAllAsync(string query = null, int? itemsPerPage = null, IProgress<IList<<#= entitySet #>>> progress = null) 
 		{
 			var allItems = new List<<#= entitySet #>>();

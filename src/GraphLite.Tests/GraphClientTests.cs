@@ -8,11 +8,11 @@ using Xunit;
 
 namespace GraphLite.Tests
 {
-    [TestCaseOrderer("GraphLite.Tests.TestNameCaseOrderer", "GraphLite.Tests")]
+    [TestCaseOrderer("GraphLite.Test-s.TestNameCaseOrderer", "GraphLite.Tests")]
     public class GraphClientTests : IClassFixture<TestFixture>
     {
-        GraphApiClient _client;
-        TestFixture _fixture;
+        readonly GraphApiClient _client;
+        readonly TestFixture _fixture;
 
         public GraphClientTests(TestFixture fixture)
         {
@@ -62,7 +62,7 @@ namespace GraphLite.Tests
         {
             var user = _client.UserGetAsync(_fixture.TestUserObjectId).Result;
             user.SetExtendedProperty("TaxRegistrationNumber", "000111000");
-            _client.UserUpdateAsync(user.ObjectId, user.ExtendedProperties).Wait();
+            _client.UserUpdateAsync(user.ObjectId, user.GetExtendedProperties()).Wait();
             Assert.NotNull(user);
         }
 
@@ -71,7 +71,7 @@ namespace GraphLite.Tests
         {
             var r = _client.UserGetAsync(_fixture.TestUserObjectId).Result;
             r.SetExtendedProperty("TaxRegistrationNumber", DateTime.Now.ToString("HHmmsstttt"));
-            _client.UserUpdateAsync(r.ObjectId, r.ExtendedProperties).Wait();
+            _client.UserUpdateAsync(r.ObjectId, r.GetExtendedProperties()).Wait();
             Assert.NotNull(r);
         }
 
@@ -156,7 +156,7 @@ namespace GraphLite.Tests
         {
             var isMember = _client.IsMemberOfGroupAsync(_fixture.TestGroupObjectId, _fixture.TestUserObjectId).Result;
             Assert.True(isMember);
-        }
+        }       
 
         [Fact]
         public async Task TestUserResetPassword()
@@ -175,7 +175,9 @@ namespace GraphLite.Tests
             {
                 CreationType = "LocalAccount",
                 AccountEnabled = true,
-                DisplayName = $"testuser-{id}@gmail.com",
+                GivenName = $"John-{id}",
+                Surname = $"Smith-{id}",
+                DisplayName = $"John Smith {id}",
                 SignInNames = new List<SignInName>
                 {
                      new SignInName()

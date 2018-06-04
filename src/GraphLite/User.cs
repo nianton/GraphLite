@@ -25,7 +25,6 @@ namespace GraphLite
         [JsonProperty("thumbnailPhoto@odata.mediaContentType")]
         public string ThumbnailContentType { get; set; }
 
-        //[JsonProperty("extension_f4d7a9e0b7bd4584bc9abb399c3c5484_TaxRegistrationNumber")]
         [JsonExtensionData]
         public IDictionary<string, JToken> ExtendedProperties { get; set; }
 

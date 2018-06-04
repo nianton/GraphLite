@@ -188,8 +188,6 @@ namespace GraphLite
                 return _client;
 
             _client = new HttpClient();
-            //_client.BaseAddress = new Uri(BaseUrl);
-
             return _client;
         }
     }
