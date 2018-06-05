@@ -7,12 +7,20 @@ namespace GraphLite
 {
     public partial class GraphApiClient
     {
+        /// <summary>
+        /// Gets the B2C extensions application asynchronously.
+        /// </summary>
+        /// <returns></returns>
         public async Task<Application> GetB2cExtensionsApplicationAsync()
         {
             var result = await ApplicationGetListAsync($"$filter=startswith(displayName, '{B2cExtensionsApplicationName}')");
             return result.Items.Single();
         }
 
+        /// <summary>
+        /// Gets the B2C extensions application metadata asynchronously.
+        /// </summary>
+        /// <returns></returns>
         private async Task<string> GetB2cExtensionsApplicationMetadataAsync()
         {
             if (_b2cExtensionsApplicationId == null)
@@ -25,6 +33,11 @@ namespace GraphLite
             return _b2cExtensionsApplicationId;
         }
 
+        /// <summary>
+        /// Gets the application extensions asynchronously.
+        /// </summary>
+        /// <param name="appObjectId">The application object identifier.</param>
+        /// <returns>The list of extension properties defined.</returns>
         public async Task<List<ExtensionProperty>> GetApplicationExtensionsAsync(string appObjectId)
         {
             var result = await ExecuteRequest<ODataResponse<ExtensionProperty>>(HttpMethod.Get, $"applications/{appObjectId}/extensionProperties");

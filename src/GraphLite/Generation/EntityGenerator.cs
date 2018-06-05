@@ -472,6 +472,15 @@ namespace GraphLite
 			return graphList;
 		}
 
+		public async Task<GraphList<User>> UserGetListAsync(ODataQuery<User> query)
+		{
+			var qs = query?.ToString() ?? string.Empty;
+			var result = await ExecuteRequest<ODataResponse<User>>(HttpMethod.Get, "users", qs);
+            var graphList = new GraphList<User>(result.Value, result.GetSkipToken());
+			return graphList;
+		}
+
+
 		public async Task<List<User>> UserGetAllAsync(string query = null, int? itemsPerPage = null, IProgress<IList<User>> progress = null) 
 		{
 			var allItems = new List<User>();
@@ -559,6 +568,15 @@ namespace GraphLite
 			return graphList;
 		}
 
+		public async Task<GraphList<Group>> GroupGetListAsync(ODataQuery<Group> query)
+		{
+			var qs = query?.ToString() ?? string.Empty;
+			var result = await ExecuteRequest<ODataResponse<Group>>(HttpMethod.Get, "groups", qs);
+            var graphList = new GraphList<Group>(result.Value, result.GetSkipToken());
+			return graphList;
+		}
+
+
 		public async Task<List<Group>> GroupGetAllAsync(string query = null, int? itemsPerPage = null, IProgress<IList<Group>> progress = null) 
 		{
 			var allItems = new List<Group>();
@@ -645,6 +663,15 @@ namespace GraphLite
             var graphList = new GraphList<Application>(result.Value, result.GetSkipToken());
 			return graphList;
 		}
+
+		public async Task<GraphList<Application>> ApplicationGetListAsync(ODataQuery<Application> query)
+		{
+			var qs = query?.ToString() ?? string.Empty;
+			var result = await ExecuteRequest<ODataResponse<Application>>(HttpMethod.Get, "applications", qs);
+            var graphList = new GraphList<Application>(result.Value, result.GetSkipToken());
+			return graphList;
+		}
+
 
 		public async Task<List<Application>> ApplicationGetAllAsync(string query = null, int? itemsPerPage = null, IProgress<IList<Application>> progress = null) 
 		{

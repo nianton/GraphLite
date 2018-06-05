@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,11 @@ namespace GraphLite
 {
     public partial class GraphApiClient
     {
+        /// <summary>
+        /// Get user's thumbnail data.
+        /// </summary>
+        /// <param name="userObjectId">The user's object identifier</param>
+        /// <returns>The thumbnail image bytes asynchronously.</returns>
         public async Task<byte[]> UserGetThumbnailAsync(string userObjectId)
         {
             var resource = $"users/{userObjectId}/thumbnailPhoto";
@@ -19,9 +25,9 @@ namespace GraphLite
         /// <summary>
         /// Updates the user's thumbnail. Note: Max size allowed for the thumbnail is 100kb.
         /// </summary>
-        /// <param name="userObjectId"></param>
-        /// <param name="imageData"></param>
-        /// <returns></returns>
+        /// <param name="userObjectId">The user's object identifier</param>
+        /// <param name="imageData">The thumbnail's image data.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task UserUpdateThumbnailAsync(string userObjectId, byte[] imageData, string contentType = "image/jpeg")
         {
             if (imageData == null)
@@ -35,6 +41,13 @@ namespace GraphLite
             var response = await responseMessage.Content.ReadAsStringAsync();
         }
 
+        /// <summary>
+        /// Resets user's password.
+        /// </summary>
+        /// <param name="userObjectId">The user's object identifier</param>
+        /// <param name="newPassword">The new password.</param>
+        /// <param name="forceChangePasswordNextLogin">Whether the user should be forced to change password on next login.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task UserResetPasswordAsync(string userObjectId, string newPassword, bool forceChangePasswordNextLogin)
         {
             var body = new
@@ -51,6 +64,11 @@ namespace GraphLite
             var response = await responseMessage.Content.ReadAsStringAsync();
         }
 
+        /// <summary>
+        /// Retrieves the user's member groups.
+        /// </summary>
+        /// <param name="userObjectId"></param>
+        /// <returns></returns>
         public async Task<List<string>> UserGetMemberGroupsAsync(string userObjectId)
         {
             var body = new { securityEnabledOnly = false };
@@ -58,6 +76,23 @@ namespace GraphLite
             return result.Value;
         }
 
+        /// <summary>
+        /// Retrieves the user by the signin name.
+        /// </summary>
+        /// <param name="signinName"></param>
+        /// <returns></returns>
+        public async Task<User> UserGetBySigninNameAsync(string signinName)
+        {
+            var query = $"$filter=signInNames/any(x: x/value eq '{signinName}')";
+            var result = await ExecuteRequest<ODataResponse<User>>(HttpMethod.Get, $"users", query);
+            return result.Value.SingleOrDefault();
+        }
+
+        /// <summary>
+        /// Invalidated user's refresh tokens.
+        /// </summary>
+        /// <param name="userObjectId">The user's object identifier.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task UserInvalidateRefreshTokensAsync(string userObjectId)
         {
             var resource = $"users/{userObjectId}/invalidateAllRefreshTokens";

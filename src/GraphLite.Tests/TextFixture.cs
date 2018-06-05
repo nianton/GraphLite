@@ -10,7 +10,9 @@ namespace GraphLite.Tests
 
         public GraphApiClient Client { get; set; }
 
-        public string TestUserObjectId { get; set; }
+        public string TestUserObjectId => TestUser.ObjectId;
+
+        public User TestUser { get; set; }
 
         public string TestGroupObjectId { get; set; }
 
@@ -26,10 +28,8 @@ namespace GraphLite.Tests
                 Configuration["tenant"]
             );
 
-            var testUser = CreateTestUser();
-            testUser = Client.UserCreateAsync(testUser).Result;
-
-            TestUserObjectId = testUser.ObjectId;
+            TestUser = CreateTestUser();
+            TestUser = Client.UserCreateAsync(TestUser).Result;
 
             var group = CreateTestGroup();
             group = Client.GroupCreateAsync(group).Result;
@@ -59,6 +59,8 @@ namespace GraphLite.Tests
             {
                 CreationType = "LocalAccount",
                 AccountEnabled = true,
+                GivenName = "John",
+                Surname = "Smith",
                 DisplayName = $"testuser-{id}@gmail.com",
                 SignInNames = new List<SignInName>
                 {

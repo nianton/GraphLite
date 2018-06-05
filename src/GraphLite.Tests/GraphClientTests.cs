@@ -11,8 +11,9 @@ namespace GraphLite.Tests
     [TestCaseOrderer("GraphLite.Tests.TestNameCaseOrderer", "GraphLite.Tests")]
     public class GraphClientTests : IClassFixture<TestFixture>
     {
-        GraphApiClient _client;
-        TestFixture _fixture;
+        const string CustomPropertyName = "TaxRegistrationNumber";
+        readonly GraphApiClient _client;
+        readonly TestFixture _fixture;
 
         public GraphClientTests(TestFixture fixture)
         {
@@ -61,7 +62,7 @@ namespace GraphLite.Tests
         public void TestUpdateSpecificUser()
         {
             var user = _client.UserGetAsync(_fixture.TestUserObjectId).Result;
-            user.SetExtendedProperty("TaxRegistrationNumber", "000111000");
+            user.SetExtendedProperty(CustomPropertyName, "000111000");
             _client.UserUpdateAsync(user.ObjectId, user.ExtendedProperties).Wait();
             Assert.NotNull(user);
         }
@@ -70,7 +71,7 @@ namespace GraphLite.Tests
         public void TestUpdateSpecificUserAlt()
         {
             var r = _client.UserGetAsync(_fixture.TestUserObjectId).Result;
-            r.SetExtendedProperty("TaxRegistrationNumber", DateTime.Now.ToString("HHmmsstttt"));
+            r.SetExtendedProperty(CustomPropertyName, DateTime.Now.ToString("HHmmsstttt"));
             _client.UserUpdateAsync(r.ObjectId, r.ExtendedProperties).Wait();
             Assert.NotNull(r);
         }
@@ -136,9 +137,7 @@ namespace GraphLite.Tests
         [Fact]
         public void TestGetGroupMembers()
         {
-            var groups = _client.GroupGetListAsync().Result;
-            var group = groups.Items.ElementAt(1);
-            var memberIds = _client.GroupGetMembersAsync(group.ObjectId).Result;
+            var memberIds = _client.GroupGetMembersAsync(_fixture.TestGroupObjectId).Result;
             Assert.NotEmpty(memberIds);
         }
 
@@ -156,7 +155,7 @@ namespace GraphLite.Tests
         {
             var isMember = _client.IsMemberOfGroupAsync(_fixture.TestGroupObjectId, _fixture.TestUserObjectId).Result;
             Assert.True(isMember);
-        }
+        }       
 
         [Fact]
         public async Task TestUserResetPassword()
@@ -175,7 +174,9 @@ namespace GraphLite.Tests
             {
                 CreationType = "LocalAccount",
                 AccountEnabled = true,
-                DisplayName = $"testuser-{id}@gmail.com",
+                GivenName = $"John-{id}",
+                Surname = $"Smith-{id}",
+                DisplayName = $"John Smith {id}",
                 SignInNames = new List<SignInName>
                 {
                      new SignInName()
