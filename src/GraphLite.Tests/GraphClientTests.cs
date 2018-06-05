@@ -8,9 +8,10 @@ using Xunit;
 
 namespace GraphLite.Tests
 {
-    [TestCaseOrderer("GraphLite.Test-s.TestNameCaseOrderer", "GraphLite.Tests")]
+    [TestCaseOrderer("GraphLite.Tests.TestNameCaseOrderer", "GraphLite.Tests")]
     public class GraphClientTests : IClassFixture<TestFixture>
     {
+        const string CustomPropertyName = "TaxRegistrationNumber";
         readonly GraphApiClient _client;
         readonly TestFixture _fixture;
 
@@ -61,8 +62,8 @@ namespace GraphLite.Tests
         public void TestUpdateSpecificUser()
         {
             var user = _client.UserGetAsync(_fixture.TestUserObjectId).Result;
-            user.SetExtendedProperty("TaxRegistrationNumber", "000111000");
-            _client.UserUpdateAsync(user.ObjectId, user.GetExtendedProperties()).Wait();
+            user.SetExtendedProperty(CustomPropertyName, "000111000");
+            _client.UserUpdateAsync(user.ObjectId, user.ExtendedProperties).Wait();
             Assert.NotNull(user);
         }
 
@@ -70,8 +71,8 @@ namespace GraphLite.Tests
         public void TestUpdateSpecificUserAlt()
         {
             var r = _client.UserGetAsync(_fixture.TestUserObjectId).Result;
-            r.SetExtendedProperty("TaxRegistrationNumber", DateTime.Now.ToString("HHmmsstttt"));
-            _client.UserUpdateAsync(r.ObjectId, r.GetExtendedProperties()).Wait();
+            r.SetExtendedProperty(CustomPropertyName, DateTime.Now.ToString("HHmmsstttt"));
+            _client.UserUpdateAsync(r.ObjectId, r.ExtendedProperties).Wait();
             Assert.NotNull(r);
         }
 
@@ -136,9 +137,7 @@ namespace GraphLite.Tests
         [Fact]
         public void TestGetGroupMembers()
         {
-            var groups = _client.GroupGetListAsync().Result;
-            var group = groups.Items.ElementAt(1);
-            var memberIds = _client.GroupGetMembersAsync(group.ObjectId).Result;
+            var memberIds = _client.GroupGetMembersAsync(_fixture.TestGroupObjectId).Result;
             Assert.NotEmpty(memberIds);
         }
 
