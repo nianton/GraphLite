@@ -110,7 +110,8 @@ namespace GraphLite.Tests
         }
 
         [Fact]
-        public async Task TestZDeleteSpecificUser()
+        [Priority(1000)] // Run this test last -deletes the test user
+        public async Task TestDeleteSpecificUser()
         {
             var userId = _fixture.TestUserObjectId;
             var r = await _client.UserGetAsync(userId);
