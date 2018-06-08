@@ -5,7 +5,6 @@ using Xunit;
 
 namespace GraphLite.Tests
 {
-    [TestCaseOrderer("GraphLite.Tests.TestNameCaseOrderer", "GraphLite.Tests")]
     public class GraphClientReportingTests : IClassFixture<TestFixture>
     {
         readonly TestFixture _fixture;

@@ -4,8 +4,7 @@ using System.Text;
 using Xunit;
 
 namespace GraphLite.Tests
-{
-    [TestCaseOrderer("GraphLite.Tests.TestNameCaseOrderer", "GraphLite.Tests")]
+{  
     public class GraphClientQueryTests : IClassFixture<TestFixture>
     {
         readonly GraphApiClient _client;
