@@ -45,13 +45,16 @@ namespace GraphLite
         {
             _tenant = tenant;
             _credential = new NetworkCredential(applicationId, applicationSecret);
+            Reporting = new ReportingClient(this);
         }
 
         public string BaseUrl { get; set; }
 
-        private async Task<TResult> ExecuteRequest<TResult>(HttpMethod method, string resource, string query = null, object body = null)
+        public IReportingClient Reporting { get; }
+
+        private async Task<TResult> ExecuteRequest<TResult>(HttpMethod method, string resource, string query = null, object body = null, string apiVersion = null)
         {
-            var response = await ExecuteRequest(method, resource, query, body);           
+            var response = await ExecuteRequest(method, resource, query, body, apiVersion);           
             var result = JsonConvert.DeserializeObject<TResult>(response);
             if (!(result is ODataResponse<Application>) && !(result is ODataResponse<ExtensionProperty>) && result is IExtensionsApplicationAware appAware)
             {
@@ -62,26 +65,27 @@ namespace GraphLite
             return result;
         }
 
-        private async Task<string> ExecuteRequest(HttpMethod method, string resource, string query = null, object body = null)
+        private async Task<string> ExecuteRequest(HttpMethod method, string resource, string query = null, object body = null, string apiVersion = null)
         {
-            var responseMessage = await DoExecuteRequest(method, resource, query, body);
+            var responseMessage = await DoExecuteRequest(method, resource, query, body, apiVersion: apiVersion);
             var response = await responseMessage.Content.ReadAsStringAsync();
             return response;
         }
 
-        private async Task<byte[]> ExecuteRequestAsByteArray(HttpMethod method, string resource, string query = null, object body = null)
+        private async Task<byte[]> ExecuteRequestAsByteArray(HttpMethod method, string resource, string query = null, object body = null, string apiVersion = null)
         {
-            var responseMessage = await DoExecuteRequest(method, resource, query, body);
+            var responseMessage = await DoExecuteRequest(method, resource, query, body, apiVersion: apiVersion);
             var response = await responseMessage.Content.ReadAsByteArrayAsync();
             return response;
         }
 
-        private async Task<HttpResponseMessage> DoExecuteRequest(HttpMethod method, string resource, string query = null, object body = null, string contentType = null, string[] acceptedContentTypes = null)
+        private async Task<HttpResponseMessage> DoExecuteRequest(HttpMethod method, string resource, string query = null, object body = null, string contentType = null, string[] acceptedContentTypes = null, string apiVersion = null)
         {
             var client = GetClient();
             await EnsureAuthorizationHeader(client);
+            apiVersion = apiVersion ?? "1.6";
 
-            var url = $"https://graph.windows.net/{_tenant}/{resource}?api-version=1.6";
+            var url = $"https://graph.windows.net/{_tenant}/{resource}?api-version={apiVersion}";
             if (!string.IsNullOrWhiteSpace(query))
             {
                 url += $"&{query}";
