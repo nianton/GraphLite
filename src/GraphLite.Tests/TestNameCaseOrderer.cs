@@ -30,12 +30,10 @@ namespace GraphLite.Tests
         public int Compare(IMethodInfo x, IMethodInfo y)
         {
             var priorityX = x.GetCustomAttributes(typeof(PriorityAttribute))
-                .OfType<PriorityAttribute>()
-                .FirstOrDefault()?.Priority ?? 0;
+                .FirstOrDefault()?.GetNamedArgument<int>("Priority") ?? 0;
 
-            var priorityY = y.GetCustomAttributes(typeof(PriorityAttribute))
-                .OfType<PriorityAttribute>()
-                .FirstOrDefault()?.Priority ?? 0;
+            var priorityY = y.GetCustomAttributes(typeof(PriorityAttribute))                
+                .FirstOrDefault()?.GetNamedArgument<int>("Priority") ?? 0;
 
             var priorityCompareResult = priorityX.CompareTo(priorityY);
 
