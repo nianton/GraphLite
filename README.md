@@ -1,6 +1,8 @@
 # GraphLite
 
-This is a lightweight Graph API client for the user management and reporting needs of an Active Directory B2C Client tenant. The entities that can be managed via this client are:
+This is a lightweight Graph API client for the user management and reporting needs of an Active Directory B2C Client tenant. More detailed documentation will be soon available on https://nianton.github.io/GraphLite.
+
+The entities that can be managed via this client are:
 
 ## User Management
 * Users

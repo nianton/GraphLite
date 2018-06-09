@@ -48,7 +48,7 @@ namespace GraphLite
             Reporting = new ReportingClient(this);
         }
 
-        public string BaseUrl { get; set; }
+        protected string BaseUrl => $"https://graph.windows.net/{_tenant}";
 
         public IReportingClient Reporting { get; }
 
@@ -85,7 +85,7 @@ namespace GraphLite
             await EnsureAuthorizationHeader(client);
             apiVersion = apiVersion ?? "1.6";
 
-            var url = $"https://graph.windows.net/{_tenant}/{resource}?api-version={apiVersion}";
+            var url = $"{BaseUrl}/{resource}?api-version={apiVersion}";
             if (!string.IsNullOrWhiteSpace(query))
             {
                 url += $"&{query}";
@@ -182,9 +182,8 @@ namespace GraphLite
 
         private string GetDirectoryObjectUrl(string directoryObjectId)
         {
-            return $"https://graph.windows.net/{_tenant}/directoryObjects/{directoryObjectId}";
+            return $"{BaseUrl}/directoryObjects/{directoryObjectId}";
         }
-
 
         private HttpClient GetClient()
         {
