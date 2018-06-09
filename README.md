@@ -1,6 +1,6 @@
 # GraphLite
 
-This is a lightweight Graph API client for the user management needs of an Active Directory B2C Client tenant. The entities that can be managed via this client are:
+This is a lightweight Graph API client for the user management and reporting needs of an Active Directory B2C Client tenant. The entities that can be managed via this client are:
 
 ## User Management
 * Users
