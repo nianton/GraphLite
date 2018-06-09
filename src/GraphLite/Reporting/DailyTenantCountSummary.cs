@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace GraphLite
+namespace GraphLite.Reporting
 {
     public partial class DailyTenantCountSummary
     {

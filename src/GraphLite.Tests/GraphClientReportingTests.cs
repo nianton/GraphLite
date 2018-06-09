@@ -22,5 +22,26 @@ namespace GraphLite.Tests
             var userCounts = _reportingClient.GetTenantUserCountSummariesAsync().Result;
             Assert.NotEmpty(userCounts);
         }
+
+        [Fact]
+        public void TestGetDailySummariesCounts()
+        {
+            var dailySummaries = _reportingClient.GetAuthenticationCountSummariesAsync().Result;
+            Assert.NotEmpty(dailySummaries);
+        }
+
+        [Fact]
+        public void TestGetMfaRequestCountSummaries()
+        {
+            var mfaRequestSummaries = _reportingClient.GetMfaRequestCountSummariesAsync().Result;
+            Assert.NotNull(mfaRequestSummaries);
+        }
+
+        [Fact]
+        public void TestGetAuthenticationCount()
+        {
+            var userCounts = _reportingClient.GetAuthenticationCountAsync().Result;
+            Assert.NotNull(userCounts);
+        }
     }
 }
