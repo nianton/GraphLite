@@ -2,6 +2,7 @@
 
 This is a lightweight Graph API client for the user management needs of an Active Directory B2C Client tenant. The entities that can be managed via this client are:
 
+## User Management
 * Users
   * Create User
   * Update User
@@ -23,3 +24,10 @@ This is a lightweight Graph API client for the user management needs of an Activ
 * Extension properties <br/>the custom properties defined via the Azure Portal AAD B2C administration
   * Support for extension properties on User
 * Applications
+
+## Usage Reporting API client
+Usage reporting client for B2C included in version 1.2 (soon to be published) which will allow the following:
+* Get User Counts (local accounts, external identity providers etc)
+* Get daily authentication counts for a period
+* Get authentication counts summary for the last 30 days
+* Get daily MFA requests count for a period
