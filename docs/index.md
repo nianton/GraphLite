@@ -3,7 +3,7 @@
 
 @import "{{ site.theme }}";
 
-# GraphLite.NET
+# GraphLite.NET1
 
 GraphLite is a lightweight GraphAPI client for .NET (.NET standard package) for the user management and reporting needs of an Azure Active Directory B2C tenant.
 
