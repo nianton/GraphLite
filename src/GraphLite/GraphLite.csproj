@@ -9,14 +9,14 @@
     <PackageLicenseUrl>https://raw.githubusercontent.com/nianton/GraphLite/master/LICENSE</PackageLicenseUrl>
     <AssemblyName>GraphLite</AssemblyName>
     <RootNamespace>GraphLite</RootNamespace>
-    <PackageProjectUrl>https://github.com/nianton/GraphLite</PackageProjectUrl>
+    <PackageProjectUrl>https://nianton.github.io/GraphLite/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/nianton/GraphLite</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageTags>AAD B2C, Graph, GraphAPI, Graph API Client, Azure Active Directory B2C</PackageTags>
-    <Description>Lightweight Graph API client for the user management needs of a AAD B2C tenant.</Description>
+    <PackageTags>AAD B2C, Graph, GraphAPI, Graph API Client, Azure Active Directory B2C, AAD-B2C</PackageTags>
+    <Description>Lightweight Graph API client for the user management and reporting needs of a AAD B2C tenant.</Description>
     <PackageReleaseNotes>First version ever -make client API more consistent.</PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/nianton/GraphLite/master/graphlite.png</PackageIconUrl>
-    <Version>1.0.1</Version>
+    <Version>1.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
