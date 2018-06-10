@@ -1,21 +1,26 @@
 # GraphLite
 
 [![NuGet](https://img.shields.io/nuget/dt/GraphLite.svg)](https://www.nuget.org/packages/GraphLite/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
 
-This is a lightweight Graph API client for the user management and reporting needs of an Active Directory B2C Client tenant. More detailed documentation will be soon available on https://nianton.github.io/GraphLite.
+This is a lightweight Graph API client for the user management and reporting needs of an Active Directory B2C Client tenant. 
+
+More detailed documentation will be soon available on:
+
+**https://nianton.github.io/GraphLite**
 
 The entities that can be managed via this client are:
 
 ## User Management
 * Users
-  * Create User
-  * Update User
+  * Create User (supports extended B2C properties)
+  * Update User (supports extended B2C properties)
   * Reset User Password
   * Delete User ([Enable User Deletion for an Application](https://docs.microsoft.com/en-us/azure/active-directory-b2c/active-directory-b2c-devquickstarts-graph-dotnet#configure-delete-permissions-for-your-application))
   * Get User by ObjectId
   * Get multiple Users by their ObjectIds
   * Get all Users
-  * Find Users based on an OData query
+  * Find Users based on an OData query (supports querying with extended B2C properties)
 * Groups (and user membership)
   * Create Group
   * Update Group

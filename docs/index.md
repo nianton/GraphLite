@@ -18,3 +18,5 @@ var users = await client.UserGetAllAsync();
 ```
 
 The acquisition of the access token is taken care by the GraphApiClient, and you can keep a reference of it for the lifetime of your application in order to minimize the overhead of acquiring a new access token for each new instance created.
+
+### [User Operations >>](users)
