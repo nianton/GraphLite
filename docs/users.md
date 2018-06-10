@@ -16,7 +16,7 @@ Retrieves a list of Users based on a given OData query.
 ```csharp
 // Sample User query
 var query = new ODataQuery<User>()                
-    .Where(u => u.GivenName, "Nikos", ODataOperator.Equals) // Where GivenName == "Nikos"
+    .Where(u => u.GivenName, "Nikos", ODataOperator.Equals) // Filter by GivenName
     .Top(10) // Fetch up to 10 users
     .OrderBy(u => u.DisplayName); // Orders the resultset by DisplayName
 
@@ -30,6 +30,24 @@ if (hasMoreResults)
 }
 ```
 When the returned resultset does not contain all the matched entities, the SkipToken property of the returned GraphList<User> has a value which can be used to get the next page of results, and can be used as in the example above.
+
+### Get All Users
+Retrieves all users in a single operation for a given query. Use with caution when large result sets are expected.
+
+```csharp
+var totalCount = 0;
+
+// Optional progress reporting
+var progress = new Progress<IList<User>>(pagedUsers => 
+{ 
+    // Report progress here
+    totalCount += pagedUsers.Count; 
+});
+
+var query = new ODataQuery<User>();
+var itemsPerPage = 10;
+var allUsers = await client.GetUserAllAsync(query, itemsPerPage, progress);
+```
 
 ### Create a User
 Create a user on the B2C tenant. 
@@ -58,6 +76,10 @@ var user = new User
     }
 };
 
+// Supports extended B2C tenant properties e.g. for a property 
+// 'TaxRegistrationNumber' registered on the tenant:
+user.SetExtendedProperty("TaxRegistrationNumber", "120498219");
+
 // Returns the created user with the generated object identifier.
 var createdUser = await client.UserCreateAsync(user);
 ```
@@ -79,20 +101,6 @@ var user = await client.UserUpdateAsync(userObjectId, userChanges);
 ```
 ***NOTE**:  This call will be revisited to allow for a more strongly typed approach.*
 
-### Get All Users
-Retrieves all users in a single operation for a given query. Use with caution when large result sets are expected.
-
-```csharp
-var totalCount = 0;
-var progress = new Progress<IList<User>>(users => { 
-    totalCount += users.Count; 
-});
-
-var query = new ODataQuery<User>();
-var itemsPerPage = 10;
-var user = await client.GetUserAllAsync(query. itemsPerPage, progress);
-```
-
 ### Get a User's thumbnail
 
 Retrieves a User's thumbnail image data (usually JPEG format).
@@ -102,7 +110,7 @@ var userObjectId = "<user-id>";
 byte[] imageData =  await client.UserGetThumbnailAsync(userObjectId);
 ```
 
-### Updates a User's thumbnail
+### Update a User's thumbnail
 
 Retrieves a User's thumbnail image data (usually JPEG format).
 
