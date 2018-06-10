@@ -36,6 +36,17 @@ namespace GraphLite.Tests
             Assert.Equal(2, r.Items.Count);
         }
 
+
+        [Fact]
+        public async Task TestSingleInitialization()
+        {
+            var t1 = _client.EnsureInitAsync();
+            var t2 = _client.EnsureInitAsync();
+            var t3 = _client.EnsureInitAsync();
+            await Task.WhenAll(t1, t2, t3);
+        }
+
+
         [Fact]
         public async Task TestGetAllUsers()
         {
@@ -169,6 +180,9 @@ namespace GraphLite.Tests
             Assert.True(isMember);
         }
 
+
+
+
         [Fact]
         public async Task TestUserResetPassword()
         {
@@ -207,6 +221,39 @@ namespace GraphLite.Tests
 
             var newUser = _client.UserCreateAsync(user).Result;
             Assert.NotNull(newUser);
+        }
+
+        [Fact]
+        public async Task TestCreateUserWithInvalidExtensionProperties()
+        {
+            var id = $"{Guid.NewGuid()}";
+
+            var user = new User
+            {
+                CreationType = "LocalAccount",
+                AccountEnabled = true,
+                GivenName = $"John-{id}",
+                Surname = $"Smith-{id}",
+                DisplayName = $"John Smith {id}",
+                SignInNames = new List<SignInName>
+                {
+                     new SignInName()
+                     {
+                         Type = "emailAddress",
+                         Value = $"nian.t.o.n-{id}@gmail.com"
+                     }
+                },
+                PasswordProfile = new PasswordProfile
+                {
+                    EnforceChangePasswordPolicy = false,
+                    ForceChangePasswordNextLogin = false,
+                    Password = "123abC!!"
+                }
+            };
+
+            user.SetExtendedProperty("MyCustomName", "Nikos");
+
+            await Assert.ThrowsAsync<InvalidOperationException>(() => _client.UserCreateAsync(user));
         }
     }
 }

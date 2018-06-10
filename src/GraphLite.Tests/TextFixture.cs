@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace GraphLite.Tests
 {
@@ -55,7 +56,7 @@ namespace GraphLite.Tests
         {
             var id = $"{Guid.NewGuid()}";
 
-            var user = new User
+            var user = new User()
             {
                 CreationType = "LocalAccount",
                 AccountEnabled = true,
@@ -78,9 +79,9 @@ namespace GraphLite.Tests
                 }
             };
 
+            user.SetExtendedProperty("TaxRegistrationNumber", "123123123");
             return user;
         }
-
 
         public void Dispose()
         {

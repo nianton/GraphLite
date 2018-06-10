@@ -18,10 +18,21 @@ namespace GraphLite
         }
 
         /// <summary>
+        /// Gets the application extensions asynchronously.
+        /// </summary>
+        /// <param name="appObjectId">The application object identifier.</param>
+        /// <returns>The list of extension properties defined.</returns>
+        public async Task<List<ExtensionProperty>> GetApplicationExtensionsAsync(string appObjectId)
+        {
+            var result = await ExecuteRequest<ODataResponse<ExtensionProperty>>(HttpMethod.Get, $"applications/{appObjectId}/extensionProperties");
+            return result.Value;
+        }
+
+        /// <summary>
         /// Gets the B2C extensions application metadata asynchronously.
         /// </summary>
         /// <returns></returns>
-        private async Task<string> GetB2cExtensionsApplicationMetadataAsync()
+        private async Task<string> EnsureB2cExtensionsApplicationMetadataAsync()
         {
             if (_b2cExtensionsApplicationId == null)
             {
@@ -31,17 +42,6 @@ namespace GraphLite
             }
 
             return _b2cExtensionsApplicationId;
-        }
-
-        /// <summary>
-        /// Gets the application extensions asynchronously.
-        /// </summary>
-        /// <param name="appObjectId">The application object identifier.</param>
-        /// <returns>The list of extension properties defined.</returns>
-        public async Task<List<ExtensionProperty>> GetApplicationExtensionsAsync(string appObjectId)
-        {
-            var result = await ExecuteRequest<ODataResponse<ExtensionProperty>>(HttpMethod.Get, $"applications/{appObjectId}/extensionProperties");
-            return result.Value;
         }
     }
 }

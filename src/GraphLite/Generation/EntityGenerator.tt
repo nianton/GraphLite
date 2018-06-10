@@ -177,7 +177,8 @@ namespace GraphLite
         /// <param name="<#= entitySet.ToLower() #>">The <#= entitySet #> to be created.</param>
 		public async Task<<#= entitySet #>> <#= entitySet #>CreateAsync(<#= entitySet #> <#= entitySet.ToLower() #>)
 		{
-			var result = await ExecuteRequest<<#= entitySet #>>(HttpMethod.Post, $"<#= entitySetName #>s", body: <#= entitySet.ToLower() #>);
+			<# if (entitySet == "User") { #>await ValidateUserAsync(<#= entitySet.ToLower() #>);
+			<# } #>var result = await ExecuteRequest<<#= entitySet #>>(HttpMethod.Post, $"<#= entitySetName #>s", body: <#= entitySet.ToLower() #>);
 			return result;
 		}
 		

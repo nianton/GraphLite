@@ -565,6 +565,7 @@ namespace GraphLite
         /// <param name="user">The User to be created.</param>
 		public async Task<User> UserCreateAsync(User user)
 		{
+			await ValidateUserAsync(user);
 			var result = await ExecuteRequest<User>(HttpMethod.Post, $"users", body: user);
 			return result;
 		}
