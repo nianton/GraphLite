@@ -121,6 +121,7 @@ var contentType = "image/jpeg";
 
 await client.UserUpdateThumbnailAsync(userObjectId, imageData, contentType);
 ```
+***NOTE**: Max allowed size for an image (as of now) is **100 kB**.*
 
 ## User Querying
 
