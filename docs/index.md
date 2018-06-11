@@ -9,16 +9,22 @@ After creating the AAD B2C tenant on Azure Portal, in order to use the GraphAPI 
 After creating the application and generating the secret key for it, and assigning the necessary rights, we can start using GraphAPI to manage the B2C users. 
 
 ```csharp
+// Create a client instance
 var client = new GraphApiClient(
     "<ApplicationID>", 
     "<ApplicationSecret>", 
     "<tenantname>.onmicrosoft.com");
 
-var users = await client.UserGetAllAsync();
+// Ensure client's initialization validates two things
+// * authorization credentials provided
+// * ensures B2C extension application
+await client.EnsureInitAsync();
 ```
 
 The acquisition of the access token is taken care by the GraphApiClient, and you can keep a reference of it for the lifetime of your application in order to minimize the overhead of acquiring a new access token for each new instance created.
 
 ## [User Operations >>](users)
+
+## [Application Operations >>](applications)
 
 ## [Usage Reporting >>](reporting)

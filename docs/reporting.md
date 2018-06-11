@@ -19,5 +19,22 @@ Retrieves the  tenant user counts per day for the last 30 days, broken down by t
 ```csharp
 // Get the daily user counts for the last week.
 var lastWeek = DateTimeOffset.UtcNow.Date.AddDays(-7);
-var userCounts = await _reportingClient.GetTenantUserCountSummariesAsync(lastWeek, ODataOperator.GreaterThan);
+var userCounts = await client.Reporting.GetTenantUserCountSummariesAsync(lastWeek, ODataOperator.GreaterThan);
 ```
+
+## Get Authentication Counts
+
+Summary of the daily number of billable authentications over the last 30 days, by day and type of authentication flow.
+
+[TODO:// Documentation]
+
+## Get Daily Authentication Count summaries
+
+[TODO:// Documentation]
+
+## Get Daily MFA Request Counts summaries
+
+[TODO:// Documentation]
+
+
+[<< Go back](./)

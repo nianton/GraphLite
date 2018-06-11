@@ -11,6 +11,13 @@ var userObjectId = "<user-id>";
 var user = await client.UserGetAsync(userObjectId);
 ```
 
+### Get User by signin name
+Retrieves a single user by its signInName.
+```csharp
+var signInName = "john@smith.com";
+var user = await client.UserGetBySigninNameAsync(signInName);
+```
+
 ### Get Users
 Retrieves a list of Users based on a given OData query. 
 ```csharp
@@ -110,7 +117,16 @@ var changeOnLogin = true;
 await client.UserResetPasswordAsync(userObjectId, password, changeOnLogin);
 ```
 
-### Get a User's thumbnail
+### Get User's member groups
+
+Gets the object identifiers of the groups the user is member of.
+
+```csharp
+var userObjectId = "<user-id>";
+var groupObjectIds = await client.UserGetMemberGroupsAsync(userObjectId);
+```
+
+### Get User's thumbnail
 
 Retrieves a User's thumbnail image data (usually JPEG format).
 
@@ -131,6 +147,14 @@ var contentType = "image/jpeg";
 await client.UserUpdateThumbnailAsync(userObjectId, imageData, contentType);
 ```
 ***NOTE**: Max allowed size for an image (as of now) is **100 kB**.*
+
+### Invalidate a User's refresh token
+
+Invalidates a user's refresh token so that it cannot be used to get a new access token.
+```csharp
+var userObjectId = "<user-id>";
+await client.UserInvalidateRefreshTokensAsync(userObjectId);
+```
 
 ## User Querying
 
