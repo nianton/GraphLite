@@ -180,9 +180,6 @@ namespace GraphLite.Tests
             Assert.True(isMember);
         }
 
-
-
-
         [Fact]
         public async Task TestUserResetPassword()
         {

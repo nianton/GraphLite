@@ -88,7 +88,7 @@ var createdUser = await client.UserCreateAsync(user);
 Delete a user by its object identifier -it remains as a deleted object in the B2C tenant for a period of 30 days. 
 ```csharp
 var userObjectId = "<user-id>";
-var user = await client.UserDeleteAsync(userObjectId);
+await client.UserDeleteAsync(userObjectId);
 ```
 ***NOTE**: Special rights have to assigned to the authenticated principal of the client to allow User deletions.*
 
@@ -97,9 +97,18 @@ Updates a user by its object identifier and the properties affected.
 ```csharp
 var userObjectId = "<user-id>";
 var userChanges = new { displayName = "Megatron" };
-var user = await client.UserUpdateAsync(userObjectId, userChanges);
+await client.UserUpdateAsync(userObjectId, userChanges);
 ```
 ***NOTE**:  This call will be revisited to allow for a more strongly typed approach.*
+
+### Reset User's password
+Resets a user's password and defines whether the password should be changed on the next sign in.
+```csharp
+var userObjectId = "<user-id>";
+var password = "MySuperNewPass123!";
+var changeOnLogin = true;
+await client.UserResetPasswordAsync(userObjectId, password, changeOnLogin);
+```
 
 ### Get a User's thumbnail
 
