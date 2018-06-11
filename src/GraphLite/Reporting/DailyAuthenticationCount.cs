@@ -1,24 +1,9 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace GraphLite.Reporting
 {
-    public class PeriodAuthenticationCounts
-    {
-        [JsonProperty("StartTimeStamp")]
-        public DateTimeOffset StartTimeStamp { get; set; }
-
-        [JsonProperty("AuthenticationCount")]
-        public long AuthenticationCount { get; set; }
-
-        [JsonProperty("EndTimeStamp")]
-        public DateTimeOffset EndTimeStamp { get; set; }
-
-        [JsonProperty("AuthFlowTypeBreakDown")]
-        public AuthFlowTypeBreakDown AuthFlowTypeBreakDown { get; set; }
-    }
 
     public class AuthFlowTypeBreakDown
     {

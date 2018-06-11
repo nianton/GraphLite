@@ -8,14 +8,6 @@ using System.Threading.Tasks;
 
 namespace GraphLite
 {
-    public interface IReportingClient
-    {
-        Task<IList<DailyTenantCountSummary>> GetTenantUserCountSummariesAsync(DateTimeOffset? dateFilter = null, ODataOperator @operator = ODataOperator.GreaterThan);
-        Task<PeriodAuthenticationCounts> GetAuthenticationCountAsync(DateTimeOffset? startTimeStamp = null, DateTimeOffset? endTimeStamp = null);
-        Task<IList<DailyAuthenticationCountSummary>> GetAuthenticationCountSummariesAsync();
-        Task<IList<DailyAuthenticationCountSummary>> GetMfaRequestCountSummariesAsync();
-    }
-
     public partial class GraphApiClient
     {
         internal class ReportingClient : IReportingClient
@@ -77,6 +69,35 @@ namespace GraphLite
                 return result.Value.Single();
             }
 
+
+            /// <summary>
+            /// The number of MFA requests within a time period. The default is the last 30 days. 
+            /// </summary>
+            /// <param name="startTimeStamp">The start time stamp.</param>
+            /// <param name="endTimeStamp">The end time stamp.</param>
+            /// <returns></returns>
+            public async Task<PeriodMfaRequestCounts> GetMfaRequestCountAsync(DateTimeOffset? startTimeStamp = null, DateTimeOffset? endTimeStamp = null)
+            {
+                var resource = "reports/b2cMfaRequestCount";
+                var query = new ODataQuery<PeriodMfaRequestCounts>();
+                if (startTimeStamp.HasValue)
+                {
+                    query = query.Where(x => x.StartTimeStamp, startTimeStamp.Value, ODataOperator.GreaterThan);
+                }
+
+                if (endTimeStamp.HasValue)
+                {
+                    query = query.Where(x => x.EndTimeStamp, endTimeStamp.Value, ODataOperator.LessThan);
+                }
+
+                // The actual expected filter for this call is on 'TimeStamp' property (even though the returned entity has different properties).
+                var qs = query.ToString()
+                    .Replace("StartTimeStamp", "TimeStamp")
+                    .Replace("EndTimeStamp", "TimeStamp");
+
+                var result = await _client.ExecuteRequest<ODataResponse<PeriodMfaRequestCounts>>(HttpMethod.Get, resource, qs, apiVersion: "beta");
+                return result.Value.Single();
+            }
 
             /// <summary>
             /// Gets the summaries of billable authentications over the last 30 days, by day and type of authentication flow.

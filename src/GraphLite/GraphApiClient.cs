@@ -63,9 +63,12 @@ namespace GraphLite
 
         protected string BaseUrl => $"https://graph.windows.net/{_tenant}";
 
+        /// <summary>
+        /// Gets the reporting client.
+        /// </summary>
         public IReportingClient Reporting { get; }
 
-                /// <summary>
+        /// <summary>
         /// Ensures that the client is initialized with the necessary B2C extension application metadata.
         /// This is required to handle extension properties for the B2C Users.
         /// </summary>
