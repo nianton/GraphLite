@@ -200,7 +200,7 @@ var matchedUsers = await client.UserGetListAsync(userQuery);
 // the next page of results.
 if (!string.IsNullOrEmpty(matchedUsers.SkipToken))
 {
-    query = query.SkipToken(matchedUsers.SkipToken);
+    userQuery = userQuery.SkipToken(matchedUsers.SkipToken);
     var nextPageOfMatchedUsers = await client.UserGetListAsync(userQuery);
 }
 
