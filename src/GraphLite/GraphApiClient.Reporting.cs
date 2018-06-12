@@ -20,7 +20,7 @@ namespace GraphLite
             }
 
             /// <summary>
-            /// Gets the tenant user count summaries asynchronous.
+            /// Gets the tenant user count summaries asynchronously.
             /// </summary>
             /// <param name="dateFilter">The date filter.</param>
             /// <param name="operator">The operator.</param>
