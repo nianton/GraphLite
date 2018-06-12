@@ -158,6 +158,52 @@ await client.UserInvalidateRefreshTokensAsync(userObjectId);
 
 ## User Querying
 
-[More documentation to be added soon...]
+In order to retrieve Users based on specific filters via the GraphApiClient there are two overloads that can be used.
+
+The recommended one, which uses ODataQuery<User>, a more strongly-typed way of providing filtering parameters:
+
+```csharp
+// query: the OData query string which holds all the necessary parameters
+public Task<GraphList<User>> UserGetListAsync(ODataQuery<User> query)
+```
+
+The following overload (kept for legacy reasons) is:
+
+```csharp
+// All parameters are optional and default to null
+// query: the OData query string, it has be crafted by the user
+// top: the max items returned by the call
+// skipToken: where to start fetching results (for paging)
+public Task<GraphList<User>> UserGetListAsync(string query, int? top, string skipToken)
+```
+
+### Using UserQuery (subclass of ODataQuery<User>)
+
+In order to filter by User's extension properties, it is necessary to use a UserQuery instance, which will translate the extension property names to the internal properties used by B2C. For the rest of the use cases,  ODataQuery<User> will work just as well.
+
+```csharp
+// Obtain a UserQuery instance
+var userQuery = await client.UserQueryCreateAsync();
+
+// Setup the required filter, items to fetch and ordering
+userQuery
+    .Where(u => u.GivenName, "john", ODataOperator.Equals)
+    .WhereIn(u => u.UserPrincipalName, "test1@domain.com",  "test2@domain.com")
+    .OrderBy(u => u.DisplayName)
+    .Top(20);
+
+// Execute the query
+var matchedUsers = await client.UserGetListAsync(userQuery);
+
+// If there are more results to fetch, the matchedUsers.SkipToken
+// property will have a value that can be set on the query to get
+// the next page of results.
+if (!string.IsNullOrEmpty(matchedUsers.SkipToken))
+{
+    query = query.SkipToken(matchedUsers.SkipToken);
+    var nextPageOfMatchedUsers = await client.UserGetListAsync(userQuery);
+}
+
+```
 
 [<< Go back](./)
