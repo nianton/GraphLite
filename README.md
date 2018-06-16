@@ -9,9 +9,24 @@ More detailed documentation will be soon available on:
 
 **https://nianton.github.io/GraphLite**
 
-The entities that can be managed via this client are:
+Updates in version **1.2.1**
+> * Added support for .NET 4.5
+> * Targets .NET 4.5 and NetStandard 2.0
 
-## User Management
+### Installation
+You can install the package [from NuGet](http://nuget.org/packages/GraphLite/) using the Visual Studio Package Manager or NuGet UI:
+
+```
+PM> Install-Package GraphLite
+```
+
+or the `dotnet` command line:
+
+```
+dotnet add package GraphLite
+```
+
+## User (and related entities) Management
 * Users
   * Create User (supports extended B2C properties)
   * Update User (supports extended B2C properties)
