@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,24 +12,22 @@ namespace GraphLite.Tests
 
         public GraphClientSingleInitialization()
         {
-            var builder = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-            var configuration = builder.Build();
+            var config = TestsConfig.Create();
 
             _client = new GraphApiClient(
-                configuration["applicationId"],
-                configuration["applicationSecret"],
-                configuration["tenant"]
-            );           
+                config.ApplicationId,
+                config.ApplicationSecret,
+                config.Tenant
+            );
         }
 
-        public async Task MultipleInitializationCallsAreEvaluatedOnce()
+        public Task MultipleInitializationCallsAreEvaluatedOnce()
         {
             var t1 = _client.EnsureInitAsync();
             var t2 = _client.EnsureInitAsync();
             var t3 = _client.EnsureInitAsync();
 
-            Task.WaitAll(t1, t2, t3);
+            return Task.WhenAll(t1, t2, t3);
         }
     }
 }

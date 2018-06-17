@@ -1,22 +1,22 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net45;net461</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Authors>Nikolaos Antoniou</Authors>
-    <Copyright>Copyright 2018</Copyright>
+    <Copyright>Nikolaos Antoniou, 2018</Copyright>
     <PackageLicenseUrl>https://raw.githubusercontent.com/nianton/GraphLite/master/LICENSE</PackageLicenseUrl>
     <AssemblyName>GraphLite</AssemblyName>
     <RootNamespace>GraphLite</RootNamespace>
     <PackageProjectUrl>https://nianton.github.io/GraphLite/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/nianton/GraphLite</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageTags>AAD B2C, Graph, GraphAPI, Graph API Client, Azure Active Directory B2C, AAD-B2C</PackageTags>
+    <PackageTags>AAD B2C, Graph, GraphAPI, Graph API Client, Azure Active Directory B2C, AAD-B2C, AADB2C</PackageTags>
     <Description>Lightweight Graph API client for the user management and reporting needs of a AAD B2C tenant.</Description>
-    <PackageReleaseNotes>First version ever -make client API more consistent.</PackageReleaseNotes>
+    <PackageReleaseNotes>Include support for .NET 4.6.1 (less dependencies) in addition to .NET 4.5 and .NET Standard 2.0</PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/nianton/GraphLite/master/graphlite.png</PackageIconUrl>
-    <Version>1.2.0</Version>
+    <Version>1.2.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,6 +30,31 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
+
+  <!-- .NET Standard 2.0 references, compilation flags and build options -->
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
+    <DefineConstants>NETCORE;NETSTANDARD;NETSTANDARD2_0;RELEASE</DefineConstants>
+  </PropertyGroup>
+
+  <!-- .NET 4.5 references, compilation flags and build options -->
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+    <Reference Include="System.Web" />
+  </ItemGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net45'">
+    <DefineConstants>NET45;NETFULL</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45'">
+    <PackageReference Include="System.Net.Http" Version="4.3.3" />
+  </ItemGroup>
+
+   <!--.NET 4.6.1 references, compilation flags and build options--> 
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
+    <Reference Include="System.Web" />
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net461'">
+    <DefineConstants>NET461;NETFULL</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup>
     <None Update="Generation\EntityGenerator.tt">

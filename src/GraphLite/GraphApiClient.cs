@@ -25,6 +25,11 @@ namespace GraphLite
         public const int MaxThumbnailPhotoSize = 100_000;
 
         /// <summary>
+        /// The default Graph API version.
+        /// </summary>
+        private const string DefaultGraphApiVersion = "1.6";
+
+        /// <summary>
         /// Patch http method.
         /// </summary>
         private static readonly HttpMethod HttpMethodPatch = new HttpMethod("PATCH");
@@ -61,6 +66,14 @@ namespace GraphLite
             Reporting = new ReportingClient(this);
         }
 
+        /// <summary>
+        /// Gets the authentication token endpoint for the ROPC call.
+        /// </summary>
+        private string AuthTokenEndpoint => $"https://login.windows.net/{_tenant}/oauth2/token";
+
+        /// <summary>
+        /// Gets the base URL.
+        /// </summary>
         protected string BaseUrl => $"https://graph.windows.net/{_tenant}";
 
         /// <summary>
@@ -122,7 +135,7 @@ namespace GraphLite
         private async Task<HttpResponseMessage> DoExecuteRequest(HttpMethod method, string resource, string query = null, object body = null, string contentType = null, string[] acceptedContentTypes = null, string apiVersion = null)
         {
             await EnsureAuthorizationHeader(_client);
-            apiVersion = apiVersion ?? "1.6";
+            apiVersion = apiVersion ?? DefaultGraphApiVersion;
 
             var url = $"{BaseUrl}/{resource}?api-version={apiVersion}";
             if (!string.IsNullOrWhiteSpace(query))
@@ -206,7 +219,7 @@ namespace GraphLite
 
         private async Task EnsureAccessTokenAsync()
         {
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"https://login.windows.net/{_tenant}/oauth2/token");
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, AuthTokenEndpoint);
             var requestParameters = new Dictionary<string, string>();
             var contentParameters = new Dictionary<string, string>
             {
@@ -233,7 +246,6 @@ namespace GraphLite
             _accessTokenExpiresOn = DateTimeOffset.Now.Add(TimeSpan.FromSeconds(authTokenResponse.ExpiresIn));
             _accessToken = authTokenResponse.AccessToken;
         }
-
 
         private string GetDirectoryObjectUrl(string directoryObjectId)
         {
