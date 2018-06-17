@@ -3,15 +3,28 @@
 [![NuGet](https://img.shields.io/nuget/dt/GraphLite.svg)](https://www.nuget.org/packages/GraphLite/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
 
-This is a lightweight Graph API client for the user management and reporting needs of an Active Directory B2C Client tenant. 
+This is a lightweight Graph API client for .NET (Framework 4.5 and Standard 2.0) for the user management and reporting needs of an Active Directory B2C Client tenant. 
 
-More detailed documentation will be soon available on:
+More detailed documentation on: **https://nianton.github.io/GraphLite**
 
-**https://nianton.github.io/GraphLite**
+Updates in version **1.2.1**
+> * Added support for .NET 4.5
+> * Targets .NET 4.5 and NetStandard 2.0
 
-The entities that can be managed via this client are:
+### Installation
+You can install the package [from NuGet](http://nuget.org/packages/GraphLite/) using the Visual Studio Package Manager or NuGet UI:
 
-## User Management
+```
+PM> Install-Package GraphLite
+```
+
+or the `dotnet` command line:
+
+```
+dotnet add package GraphLite
+```
+
+## User (and related entities) Management
 * Users
   * Create User (supports extended B2C properties)
   * Update User (supports extended B2C properties)
