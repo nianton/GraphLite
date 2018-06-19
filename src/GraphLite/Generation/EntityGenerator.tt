@@ -68,6 +68,12 @@ namespace GraphLite
 	foreach (var entitySet in sets) {
 		var entitySetName = entitySet.Substring(0, 1).ToLower() + entitySet.Substring(1);
 #>
+        /// <summary>
+        /// Get a list of <#= entitySet #>s asynchronously.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="top">How many items will included.</param>
+        /// <param name="skipToken">The skip token (returned from a previous query if not all items were included).</param>
 		public async Task<GraphList<<#= entitySet #>>> <#= entitySet #>GetListAsync(string query = null, int? top = null, string skipToken = null)
 		{
 			var qs = HttpUtility.ParseQueryString(query ?? string.Empty);
@@ -84,6 +90,10 @@ namespace GraphLite
 			return graphList;
 		}
 
+		/// <summary>
+        /// Get a list of <#= entitySet #>s asynchronously.
+        /// </summary>
+        /// <param name="query">The OData query.</param>
 		public async Task<GraphList<<#= entitySet #>>> <#= entitySet #>GetListAsync(ODataQuery<<#= entitySet #>> query)
 		{
 			var qs = query?.ToString() ?? string.Empty;
@@ -92,7 +102,12 @@ namespace GraphLite
 			return graphList;
 		}
 
-
+		/// <summary>
+        /// Get all <#= entitySet #>s asynchronously (use with caution).
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="itemsPerPage">How many items will included per page.</param>
+        /// <param name="progresss">The progress reporter, will be called for every page of results fetched.</param>
 		public async Task<List<<#= entitySet #>>> <#= entitySet #>GetAllAsync(string query = null, int? itemsPerPage = null, IProgress<IList<<#= entitySet #>>> progress = null) 
 		{
 			var allItems = new List<<#= entitySet #>>();
@@ -118,6 +133,10 @@ namespace GraphLite
 			return allItems;
 		}
 	
+		/// <summary>
+        /// Get a list of <#= entitySet #>s asynchronously for the specified identifiers.
+        /// </summary>
+        /// <param name="<#= entitySet.ToLower() #>ObjectIds">The <#= entitySet.ToLower() #> object identifiers.</param>
 		public async Task<List<<#= entitySet #>>> <#= entitySet #>GetByObjectIdsAsync(params string[] <#= entitySet.ToLower() #>ObjectIds) 
 		{
 			var body = new
@@ -129,7 +148,11 @@ namespace GraphLite
 			var result = await ExecuteRequest<ODataResponse<<#= entitySet #>>>(HttpMethod.Post, "getObjectsByObjectIds", body: body);
 			return result.Value;
 		}
-
+		
+		/// <summary>
+        /// Gets a specific <#= entitySet #> instance.
+        /// </summary>
+        /// <param name="<#= entitySet.ToLower() #>ObjectId">The <#= entitySet.ToLower() #>'s object identifier.</param>
 		public async Task<<#= entitySet #>> <#= entitySet #>GetAsync(string <#= entitySet.ToLower() #>ObjectId)
 		{
 			try 
@@ -148,17 +171,31 @@ namespace GraphLite
 			}
 		}
 
+		/// <summary>
+        /// Creates a <#= entitySet #> instance.
+        /// </summary>
+        /// <param name="<#= entitySet.ToLower() #>">The <#= entitySet #> to be created.</param>
 		public async Task<<#= entitySet #>> <#= entitySet #>CreateAsync(<#= entitySet #> <#= entitySet.ToLower() #>)
 		{
-			var result = await ExecuteRequest<<#= entitySet #>>(HttpMethod.Post, $"<#= entitySetName #>s", body: <#= entitySet.ToLower() #>);
+			<# if (entitySet == "User") { #>await ValidateUserAsync(<#= entitySet.ToLower() #>);
+			<# } #>var result = await ExecuteRequest<<#= entitySet #>>(HttpMethod.Post, $"<#= entitySetName #>s", body: <#= entitySet.ToLower() #>);
 			return result;
 		}
 		
+		/// <summary>
+        /// Updates a <#= entitySet #> instance.
+        /// </summary>
+		/// <param name="<#= entitySet.ToLower() #>ObjectId">The <#= entitySet.ToLower() #>'s object identifier.</param>
+        /// <param name="modelChanges">The object containing the partial updates for the given <#= entitySet #>.</param>
 		public async Task <#= entitySet #>UpdateAsync(string <#= entitySet.ToLower() #>ObjectId, object modelChanges)
 		{
 			var result = await ExecuteRequest(HttpMethodPatch, $"<#= entitySetName #>s/{<#= entitySet.ToLower() #>ObjectId}", body: modelChanges);
 		}
 
+		/// <summary>
+        /// Deletes a <#= entitySet #> instance.
+        /// </summary>
+		/// <param name="<#= entitySet.ToLower() #>ObjectId">The <#= entitySet.ToLower() #>'s object identifier.</param>
 		public async Task <#= entitySet #>DeleteAsync(string <#= entitySet.ToLower() #>ObjectId) 
 		{
 			var result = await ExecuteRequest(HttpMethod.Delete, $"<#= entitySetName #>s/{<#= entitySet.ToLower() #>ObjectId}");

@@ -14,6 +14,7 @@ namespace GraphLite
 
     public partial class User : IExtensionsApplicationAware
     {
+        const string _extensionsApplicationPlaceholder = "EXTENSION_B2C_APP";
         private string _extensionsApplicationId;
 
         [JsonProperty("odata.metadata")]
@@ -28,9 +29,9 @@ namespace GraphLite
         [JsonExtensionData]
         public IDictionary<string, JToken> ExtendedProperties { get; set; }
 
-        public IDictionary<string, object> GetExtendedProperties()
+        public IReadOnlyDictionary<string, object> GetExtendedProperties()
         {
-            var prefix = $"extension_{_extensionsApplicationId.Replace("-", string.Empty)}_";
+            var prefix = GetExtendedPropertyPrefix();
             var extendedProperties = ExtendedProperties
                 .Where(kvp => kvp.Key.StartsWith(prefix))
                 .ToDictionary(
@@ -44,12 +45,12 @@ namespace GraphLite
             if (ExtendedProperties == null)
                 ExtendedProperties = new Dictionary<string, JToken>();
 
-            ExtendedProperties[$"extension_{_extensionsApplicationId.Replace("-", string.Empty)}_{name}"] = JToken.FromObject(value);
+            ExtendedProperties[$"{GetExtendedPropertyPrefix()}{name}"] = JToken.FromObject(value);
         }
 
         public TValue GetExtendedProperty<TValue>(string name)
         {
-            var key = $"extension_{_extensionsApplicationId.Replace("-", string.Empty)}_{name}";
+            var key = $"{GetExtendedPropertyPrefix()}{name}";
             var token = default(JToken);
             if (ExtendedProperties?.TryGetValue(key, out token) == true) {
                 return token.ToObject<TValue>();
@@ -58,9 +59,29 @@ namespace GraphLite
             return default(TValue);
         }
 
+        private string GetExtendedPropertyPrefix()
+        {
+            var ext = _extensionsApplicationId ?? _extensionsApplicationPlaceholder;
+            return $"extension_{ext.Replace("-", string.Empty)}_";
+        }
+
         void IExtensionsApplicationAware.SetExtensionsApplicationId(string appId)
         {
             _extensionsApplicationId = appId;
+            if (ExtendedProperties == null || !ExtendedProperties.Any())
+                return;
+
+            foreach (var key in ExtendedProperties.Keys.ToList())
+            {
+                if (key.Contains(_extensionsApplicationPlaceholder))
+                {
+                    var value = ExtendedProperties[key];
+                    var newKey = key.Replace(_extensionsApplicationPlaceholder, _extensionsApplicationId.Replace("-", string.Empty));
+
+                    ExtendedProperties.Remove(key);                    
+                    ExtendedProperties[newKey] = value;
+                }
+            }
         }
     }
 }

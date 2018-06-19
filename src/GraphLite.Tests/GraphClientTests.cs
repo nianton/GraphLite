@@ -14,7 +14,7 @@ namespace GraphLite.Tests
         const string CustomPropertyName = "TaxRegistrationNumber";
         readonly GraphApiClient _client;
         readonly TestFixture _fixture;
-
+            
         public GraphClientTests(TestFixture fixture)
         {
             _fixture = fixture;
@@ -33,16 +33,30 @@ namespace GraphLite.Tests
         {
             var r = _client.UserGetListAsync(top: 2).Result;
             Assert.NotNull(r);
+            Assert.Equal(2, r.Items.Count);
         }
+
+
+        [Fact]
+        public async Task TestSingleInitialization()
+        {
+            var t1 = _client.EnsureInitAsync();
+            var t2 = _client.EnsureInitAsync();
+            var t3 = _client.EnsureInitAsync();
+            await Task.WhenAll(t1, t2, t3);
+        }
+
 
         [Fact]
         public async Task TestGetAllUsers()
         {
-            var progress = new Progress<List<User>>(items => Console.WriteLine($"items retrieved: {items.Count}"));
-            var allUsers = await _client.UserGetAllAsync(itemsPerPage: 10);           
+            var totalCount = 0;
+            var progress = new Progress<IList<User>>(users => { totalCount += users.Count; });
+            
+            var allUsers = await _client.UserGetAllAsync(itemsPerPage: 10, progress: progress);
             Assert.NotNull(allUsers);
+            Assert.Equal(totalCount, allUsers.Count);
         }
-
 
         [Fact]
         public void TestGetExtensionsApp()
@@ -65,6 +79,14 @@ namespace GraphLite.Tests
             user.SetExtendedProperty(CustomPropertyName, "000111000");
             _client.UserUpdateAsync(user.ObjectId, user.ExtendedProperties).Wait();
             Assert.NotNull(user);
+        }
+
+        [Fact]
+        public void TestGetUserBySignInName()
+        {
+            var user = _client.UserGetBySigninNameAsync(_fixture.TestUser.SignInNames.First().Value).Result;          
+            Assert.NotNull(user);
+            Assert.Equal(_fixture.TestUserObjectId, user.ObjectId);
         }
 
         [Fact]
@@ -110,7 +132,7 @@ namespace GraphLite.Tests
         }
 
         [Fact]
-        [Priority(1000)] // Run this test last -deletes the test user
+        [Priority(1000)] // To make sure that it runs last (deletes the test user)
         public async Task TestDeleteSpecificUser()
         {
             var userId = _fixture.TestUserObjectId;
@@ -156,7 +178,7 @@ namespace GraphLite.Tests
         {
             var isMember = _client.IsMemberOfGroupAsync(_fixture.TestGroupObjectId, _fixture.TestUserObjectId).Result;
             Assert.True(isMember);
-        }       
+        }
 
         [Fact]
         public async Task TestUserResetPassword()
@@ -196,6 +218,39 @@ namespace GraphLite.Tests
 
             var newUser = _client.UserCreateAsync(user).Result;
             Assert.NotNull(newUser);
+        }
+
+        [Fact]
+        public async Task TestCreateUserWithInvalidExtensionProperties()
+        {
+            var id = $"{Guid.NewGuid()}";
+
+            var user = new User
+            {
+                CreationType = "LocalAccount",
+                AccountEnabled = true,
+                GivenName = $"John-{id}",
+                Surname = $"Smith-{id}",
+                DisplayName = $"John Smith {id}",
+                SignInNames = new List<SignInName>
+                {
+                     new SignInName()
+                     {
+                         Type = "emailAddress",
+                         Value = $"nian.t.o.n-{id}@gmail.com"
+                     }
+                },
+                PasswordProfile = new PasswordProfile
+                {
+                    EnforceChangePasswordPolicy = false,
+                    ForceChangePasswordNextLogin = false,
+                    Password = "123abC!!"
+                }
+            };
+
+            user.SetExtendedProperty("MyCustomName", "Nikos");
+
+            await Assert.ThrowsAsync<InvalidOperationException>(() => _client.UserCreateAsync(user));
         }
     }
 }

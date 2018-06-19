@@ -181,6 +181,7 @@ namespace GraphLite
             {
                 memberExpression = ((UnaryExpression)memberExpression).Operand;
             }
+
             while (memberExpression is MemberExpression)
             {
                 var mExp = memberExpression as MemberExpression;
@@ -198,6 +199,15 @@ namespace GraphLite
             }
 
             return columnName;
+        }
+
+        protected void AppendFilterClause(string filterClause, bool useOr = false)
+        {
+            _filterClause = string.IsNullOrEmpty(_filterClause)
+              ? string.Empty
+              : _filterClause + (useOr ? " or " : " and ");
+
+            _filterClause += filterClause;
         }
 
         protected string GetODataOperatorValue(ODataOperator @operator)

@@ -1,13 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace GraphLite.Tests
 {
     public class TestFixture : IDisposable
     {
-        public IConfigurationRoot Configuration { get; set; }
-
+        public TestsConfig Config { get; set; }
         public GraphApiClient Client { get; set; }
 
         public string TestUserObjectId => TestUser.ObjectId;
@@ -18,14 +17,12 @@ namespace GraphLite.Tests
 
         public TestFixture()
         {
-            var builder = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-            Configuration = builder.Build();
+            Config = TestsConfig.Create();
 
             Client = new GraphApiClient(
-                Configuration["applicationId"],
-                Configuration["applicationSecret"],
-                Configuration["tenant"]
+                Config.ApplicationId,
+                Config.ApplicationSecret,
+                Config.Tenant
             );
 
             TestUser = CreateTestUser();
@@ -55,7 +52,7 @@ namespace GraphLite.Tests
         {
             var id = $"{Guid.NewGuid()}";
 
-            var user = new User
+            var user = new User()
             {
                 CreationType = "LocalAccount",
                 AccountEnabled = true,
@@ -78,9 +75,9 @@ namespace GraphLite.Tests
                 }
             };
 
+            user.SetExtendedProperty("TaxRegistrationNumber", "123123123");
             return user;
         }
-
 
         public void Dispose()
         {

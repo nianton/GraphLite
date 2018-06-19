@@ -99,5 +99,51 @@ namespace GraphLite
             var responseMessage = await DoExecuteRequest(HttpMethod.Post, resource);
             var response = await responseMessage.Content.ReadAsStringAsync();
         }
+
+        public async Task<UserQuery> UserQueryCreateAsync()
+        {
+            await EnsureInitAsync();
+            return new UserQuery(_b2cExtensionsApplicationId);
+        }
+
+        private async Task ValidateUserAsync(User user)
+        {
+            var errors = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(user.DisplayName))
+            {
+                errors.Add("User's property 'DisplayName' is required.");
+            }
+
+            if ((user.SignInNames == null || !user.SignInNames.Any()) && 
+                (user.UserIdentities == null || !user.UserIdentities.Any()))
+            {
+                errors.Add("User should have a SignInName or a UserIdentity defined.");
+            }
+
+            if (user.ExtendedProperties?.Any() == true)
+            {
+                // Ensure initialization (access to b2c extension app/properties)
+                await EnsureInitAsync();
+                ((IExtensionsApplicationAware)user).SetExtensionsApplicationId(_b2cExtensionsApplicationId);
+
+                var invalidExtensionProperties = user.ExtendedProperties.Keys
+                    .Where(key => key.StartsWith("extension_"))
+                    .Where(key => !_b2cExtensionsApplicationProperties.Any(exp => string.Equals(exp.Name, key, StringComparison.OrdinalIgnoreCase)));
+
+                if (invalidExtensionProperties.Any())
+                {
+                    var prefix = $"extension_{_b2cExtensionsApplicationId.Replace("-", string.Empty)}_";
+                    var error = $"The following properties do not exist on the current tenant: "
+                        + string.Join(", ", invalidExtensionProperties.Select(exp => exp.Replace(prefix, string.Empty)));
+                    errors.Add(error);
+                }
+            }
+
+            if (errors.Any())
+            {
+                throw new InvalidOperationException($"User validation failed, errors: {string.Join(" || ", errors)}");
+            }
+        }
     }
 }

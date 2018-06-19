@@ -25,9 +25,24 @@ namespace GraphLite
             Error = error;
         }
 
+        /// <summary>
+        /// Gets the status code of the response.
+        /// </summary>
         public HttpStatusCode StatusCode => ResponseMessage.StatusCode;
+
+        /// <summary>
+        /// Gets or sets the request message.
+        /// </summary>
         public HttpRequestMessage RequestMessage { get; set; }
+
+        /// <summary>
+        /// Gets or sets the response message.
+        /// </summary>
         public HttpResponseMessage ResponseMessage { get; set; }
+
+        /// <summary>
+        /// Gets or sets the error.
+        /// </summary>
         public ErrorInfo Error { get; set; }
     }
 }
