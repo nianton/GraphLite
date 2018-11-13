@@ -16,7 +16,7 @@
     <Description>Lightweight Graph API client for the user management and reporting needs of a AAD B2C tenant.</Description>
     <PackageReleaseNotes>Include support for .NET 4.6.1 (less dependencies) in addition to .NET 4.5 and .NET Standard 2.0</PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/nianton/GraphLite/master/graphlite.png</PackageIconUrl>
-    <Version>1.2.2</Version>
+    <Version>1.2.4</Version>
   </PropertyGroup>
 
   <ItemGroup>
