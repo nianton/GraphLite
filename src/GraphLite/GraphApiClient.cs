@@ -51,6 +51,7 @@ namespace GraphLite
         private DateTimeOffset? _accessTokenExpiresOn;
         private string _b2cExtensionsApplicationId;
         private List<ExtensionProperty> _b2cExtensionsApplicationProperties;
+        private Func<string, Task<string>> _authorizationCallback;
 
         /// <summary>
         /// Initializes an instance of the GraphApiClient with the necessary application credentials.
@@ -228,7 +229,7 @@ namespace GraphLite
             if (_authorizationCallback != null)
                 await CallExternalAuthentication(client);
             else
-                await EnsureAuthorixationHeaderInternal(client);
+                await EnsureAuthorizationHeaderInternal(client);
 
         }
 
@@ -240,7 +241,7 @@ namespace GraphLite
                 await _authorizationCallback.Invoke("https://graph.windows.net"));
         }
 
-        private async Task EnsureAuthorixationHeaderInternal(HttpClient client)
+        private async Task EnsureAuthorizationHeaderInternal(HttpClient client)
         {
             if (DateTimeOffset.Now > _accessTokenExpiresOn.GetValueOrDefault())
             {
