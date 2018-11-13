@@ -60,10 +60,39 @@ namespace GraphLite
         /// <param name="tenant">The B2C tenant e.g. 'mytenant.onmicrosoft.com'</param>
         public GraphApiClient(string applicationId, string applicationSecret, string tenant)
         {
+            ValidateInput(applicationId, applicationSecret, tenant);
             _tenant = tenant;
             _credential = new NetworkCredential(applicationId, applicationSecret);
             _client = new HttpClient();
             Reporting = new ReportingClient(this);
+        }
+
+        private static void ValidateInput(string applicationId, string applicationSecret, string tenant)
+        {
+            if (string.IsNullOrWhiteSpace(applicationId)) throw new ArgumentNullException("applicationId");
+            if (string.IsNullOrWhiteSpace(applicationSecret)) throw new ArgumentNullException("applicationSecret");
+            if (!Guid.TryParse(applicationId, out var appId)) throw new ArgumentException("invalid format", "applicationId");
+            if (string.IsNullOrWhiteSpace(tenant)) throw new ArgumentNullException("tenant");
+        }
+
+        /// <summary>
+        ///  Initializes an instance of the GraphApiClient with authorization callback.
+        /// </summary>
+        /// <param name="tenant">The B2C tenant e.g. 'mytenant.onmicrosoft.com'</param>
+        /// <param name="authorizationCallback">Callback to provide the content of the http Authorize header</param>
+        public GraphApiClient(string tenant, Func<string, Task<string>> authorizationCallback)
+        {
+            ValidateInput(tenant, authorizationCallback);
+            _tenant = tenant;
+            _authorizationCallback = authorizationCallback;
+            _client = new HttpClient();
+            Reporting = new ReportingClient(this);
+        }
+
+        private static void ValidateInput(string tenant, Func<string, Task<string>> authorizationCallback)
+        {
+            if (authorizationCallback == null) throw new ArgumentNullException("authorizationCallback");
+            if (string.IsNullOrWhiteSpace(tenant)) throw new ArgumentNullException("tenant");
         }
 
         /// <summary>
@@ -107,7 +136,7 @@ namespace GraphLite
 
         private async Task<TResult> ExecuteRequest<TResult>(HttpMethod method, string resource, string query = null, object body = null, string apiVersion = null)
         {
-            var response = await ExecuteRequest(method, resource, query, body, apiVersion);           
+            var response = await ExecuteRequest(method, resource, query, body, apiVersion);
             var result = JsonConvert.DeserializeObject<TResult>(response);
             if (!(result is ODataResponse<Application>) && !(result is ODataResponse<ExtensionProperty>) && result is IExtensionsApplicationAware appAware)
             {
@@ -158,7 +187,7 @@ namespace GraphLite
                 else
                 {
                     var json = JsonConvert.SerializeObject(body, new JsonSerializerSettings() { NullValueHandling = method == HttpMethod.Post ? NullValueHandling.Ignore : NullValueHandling.Include });
-                    content = new StringContent(json, Encoding.UTF8, "application/json");                    
+                    content = new StringContent(json, Encoding.UTF8, "application/json");
                 }
 
                 requestMessage.Content = content;
@@ -196,6 +225,23 @@ namespace GraphLite
         /// <returns>A task that indicates the asynchronous call.</returns>
         private async Task EnsureAuthorizationHeader(HttpClient client)
         {
+            if (_authorizationCallback != null)
+                await CallExternalAuthentication(client);
+            else
+                await EnsureAuthorixationHeaderInternal(client);
+
+        }
+
+        private async Task CallExternalAuthentication(HttpClient client)
+        {
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",
+                await _authorizationCallback.Invoke("https://graph.windows.net"));
+        }
+
+        private async Task EnsureAuthorixationHeaderInternal(HttpClient client)
+        {
             if (DateTimeOffset.Now > _accessTokenExpiresOn.GetValueOrDefault())
             {
                 await _accessTokenSemaphore.WaitAsync();
@@ -206,8 +252,10 @@ namespace GraphLite
                         await EnsureAccessTokenAsync();
 
                         client.DefaultRequestHeaders.Accept.Clear();
-                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+                        client.DefaultRequestHeaders.Accept.Add(
+                            new MediaTypeWithQualityHeaderValue("application/json"));
+                        client.DefaultRequestHeaders.Authorization =
+                            new AuthenticationHeaderValue("Bearer", _accessToken);
                     }
                 }
                 finally
@@ -216,6 +264,7 @@ namespace GraphLite
                 }
             }
         }
+
 
         private async Task EnsureAccessTokenAsync()
         {
@@ -242,7 +291,7 @@ namespace GraphLite
             }
 
             var authTokenResponse = JsonConvert.DeserializeObject<AuthTokenResponse>(response);
-            
+
             _accessTokenExpiresOn = DateTimeOffset.Now.Add(TimeSpan.FromSeconds(authTokenResponse.ExpiresIn));
             _accessToken = authTokenResponse.AccessToken;
         }
