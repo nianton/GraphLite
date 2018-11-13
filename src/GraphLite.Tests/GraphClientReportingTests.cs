@@ -27,7 +27,7 @@ namespace GraphLite.Tests
         public void TestGetDailySummariesCounts()
         {
             var dailySummaries = _reportingClient.GetAuthenticationCountSummariesAsync().Result;
-            Assert.NotEmpty(dailySummaries);
+            Assert.NotNull(dailySummaries);
         }
 
         [Fact]
