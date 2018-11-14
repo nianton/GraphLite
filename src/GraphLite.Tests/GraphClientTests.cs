@@ -11,10 +11,10 @@ namespace GraphLite.Tests
     [TestCaseOrderer("GraphLite.Tests.TestNameCaseOrderer", "GraphLite.Tests")]
     public class GraphClientTests : IClassFixture<TestFixture>
     {
-        const string CustomPropertyName = "TaxRegistrationNumber";
-        readonly GraphApiClient _client;
-        readonly TestFixture _fixture;
-            
+        private const string CustomPropertyName = "TaxRegistrationNumber";
+        private readonly GraphApiClient _client;
+        private readonly TestFixture _fixture;
+
         public GraphClientTests(TestFixture fixture)
         {
             _fixture = fixture;
@@ -52,7 +52,7 @@ namespace GraphLite.Tests
         {
             var totalCount = 0;
             var progress = new Progress<IList<User>>(users => { totalCount += users.Count; });
-            
+
             var allUsers = await _client.UserGetAllAsync(itemsPerPage: 10, progress: progress);
             Assert.NotNull(allUsers);
             Assert.Equal(totalCount, allUsers.Count);
@@ -76,6 +76,7 @@ namespace GraphLite.Tests
         public void TestUpdateSpecificUser()
         {
             var user = _client.UserGetAsync(_fixture.TestUserObjectId).Result;
+            user.ExtendedProperties.Remove("thumbnailPhoto@odata.mediaEditLink");
             user.SetExtendedProperty(CustomPropertyName, "000111000");
             _client.UserUpdateAsync(user.ObjectId, user.ExtendedProperties).Wait();
             Assert.NotNull(user);
@@ -84,7 +85,7 @@ namespace GraphLite.Tests
         [Fact]
         public void TestGetUserBySignInName()
         {
-            var user = _client.UserGetBySigninNameAsync(_fixture.TestUser.SignInNames.First().Value).Result;          
+            var user = _client.UserGetBySigninNameAsync(_fixture.TestUser.SignInNames.First().Value).Result;
             Assert.NotNull(user);
             Assert.Equal(_fixture.TestUserObjectId, user.ObjectId);
         }
@@ -93,6 +94,7 @@ namespace GraphLite.Tests
         public void TestUpdateSpecificUserAlt()
         {
             var r = _client.UserGetAsync(_fixture.TestUserObjectId).Result;
+            r.ExtendedProperties.Remove("thumbnailPhoto@odata.mediaEditLink");
             r.SetExtendedProperty(CustomPropertyName, DateTime.Now.ToString("HHmmsstttt"));
             _client.UserUpdateAsync(r.ObjectId, r.ExtendedProperties).Wait();
             Assert.NotNull(r);

@@ -35,6 +35,7 @@ namespace GraphLite
         private string _b2cExtensionsApplicationId;
         private List<ExtensionProperty> _b2cExtensionsApplicationProperties;
         private readonly Func<string, Task<TokenWrapper>> _authorizationCallback;
+        private string _b2cExtensionsObjectId;
 
         /// <summary>
         /// Initializes an instance of the GraphApiClient with the necessary application credentials.
