@@ -27,7 +27,7 @@ namespace GraphLite
         private readonly SemaphoreSlim _initializationSemaphore = new SemaphoreSlim(1, 1);
 
         /// <summary>
-        /// The access token semaphore (ensures a single execution of <see cref="EnsureAuthorizationHeader(HttpClient)"/> for many concurrent calls).
+        /// The access token semaphore (ensures a single execution of <see cref="EnsureAuthorizationHeader(HttpRequestMessage)"/> for many concurrent calls).
         /// </summary>
         private readonly SemaphoreSlim _accessTokenSemaphore = new SemaphoreSlim(1, 1);
 
@@ -135,8 +135,8 @@ namespace GraphLite
                 url += $"&{query}";
             }
             var requestMessage = new HttpRequestMessage(method, url);
-            
-            
+
+
             if (body != null && (method == HttpMethod.Post || method == HttpMethod.Put || method == HttpMethodPatch))
             {
                 var content = default(HttpContent);
