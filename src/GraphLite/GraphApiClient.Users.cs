@@ -33,8 +33,8 @@ namespace GraphLite
             if (imageData == null)
                 throw new ArgumentNullException(nameof(imageData));
 
-            if (imageData.Length > MaxThumbnailPhotoSize)
-                throw new ArgumentOutOfRangeException(nameof(imageData), $"The max size allowed for thumbnail photo is {MaxThumbnailPhotoSize} bytes.");
+            if (imageData.Length > GraphLiteConfiguration.MaxThumbnailPhotoSize)
+                throw new ArgumentOutOfRangeException(nameof(imageData), $"The max size allowed for thumbnail photo is {GraphLiteConfiguration.MaxThumbnailPhotoSize} bytes.");
 
             var resource = $"users/{userObjectId}/thumbnailPhoto";
             var responseMessage = await DoExecuteRequest(HttpMethod.Put, resource, body: imageData, contentType: contentType);

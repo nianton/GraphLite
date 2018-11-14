@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace GraphLite.Tests
 {
@@ -35,10 +35,9 @@ namespace GraphLite.Tests
             Client.GroupAddMemberAsync(group.ObjectId, TestUserObjectId).Wait();
         }
         private string AuthTokenEndpoint => $"https://login.windows.net/{Config.Tenant}/oauth2/token";
-        private async Task<string> EnsureAccessTokenAsync(string resource)
+        private async Task<TokenWrapper> EnsureAccessTokenAsync(string resource)
         {
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, AuthTokenEndpoint);
-            var requestParameters = new Dictionary<string, string>();
             var contentParameters = new Dictionary<string, string>
             {
                 { "client_id", Config.ApplicationId },
@@ -60,9 +59,12 @@ namespace GraphLite.Tests
             }
 
             var authTokenResponse = JsonConvert.DeserializeObject<AuthTokenResponse>(response);
-
-            
-            return authTokenResponse.AccessToken;
+            var token = new TokenWrapper
+            {
+                Expiry = DateTimeOffset.Now.Add(TimeSpan.FromSeconds(authTokenResponse.ExpiresIn)),
+                Token = authTokenResponse.AccessToken
+            };
+            return token;
         }
         private Group CreateTestGroup()
         {

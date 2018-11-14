@@ -13,7 +13,7 @@ namespace GraphLite
         /// <returns></returns>
         public async Task<Application> GetB2cExtensionsApplicationAsync()
         {
-            var result = await ApplicationGetListAsync($"$filter=startswith(displayName, '{B2cExtensionsApplicationName}')");
+            var result = await ApplicationGetListAsync($"$filter=startswith(displayName, '{GraphLiteConfiguration.B2cExtensionsApplicationName}')");
             return result.Items.Single();
         }
 
