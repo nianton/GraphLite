@@ -59,13 +59,16 @@
         <Property Name="oauth2Permissions" Type="Collection(Microsoft.DirectoryServices.OAuth2Permission)" Nullable="false" />
         <Property Name="oauth2RequirePostResponse" Type="Edm.Boolean" Nullable="false" />
         <Property Name="optionalClaims" Type="Microsoft.DirectoryServices.OptionalClaims" />
+        <Property Name="orgRestrictions" Type="Collection(Edm.Guid)" Nullable="false" />
         <Property Name="parentalControlSettings" Type="Microsoft.DirectoryServices.ParentalControlSettings" />
         <Property Name="passwordCredentials" Type="Collection(Microsoft.DirectoryServices.PasswordCredential)" Nullable="false" />
         <Property Name="publicClient" Type="Edm.Boolean" />
+        <Property Name="publisherDomain" Type="Edm.String" />
         <Property Name="recordConsentConditions" Type="Edm.String" />
         <Property Name="replyUrls" Type="Collection(Edm.String)" Nullable="false" />
         <Property Name="requiredResourceAccess" Type="Collection(Microsoft.DirectoryServices.RequiredResourceAccess)" Nullable="false" />
         <Property Name="samlMetadataUrl" Type="Edm.String" />
+        <Property Name="signInAudience" Type="Edm.String" />
         <Property Name="tokenEncryptionKeyId" Type="Edm.Guid" />
         <NavigationProperty Name="extensionProperties" Relationship="Microsoft.DirectoryServices.Application_extensionProperties" ToRole="extensionProperties" FromRole="Application" />
         <NavigationProperty Name="policies" Relationship="Microsoft.DirectoryServices.Application_policies" ToRole="policies" FromRole="Application" />
@@ -206,6 +209,8 @@
         <Property Name="isCompliant" Type="Edm.Boolean" />
         <Property Name="isManaged" Type="Edm.Boolean" />
         <Property Name="lastDirSyncTime" Type="Edm.DateTime" />
+        <Property Name="profileType" Type="Edm.String" />
+        <Property Name="systemLabels" Type="Collection(Edm.String)" Nullable="false" />
         <NavigationProperty Name="registeredOwners" Relationship="Microsoft.DirectoryServices.Device_registeredOwners" ToRole="registeredOwners" FromRole="Device" />
         <NavigationProperty Name="registeredUsers" Relationship="Microsoft.DirectoryServices.Device_registeredUsers" ToRole="registeredUsers" FromRole="Device" />
       </EntityType>
@@ -293,6 +298,7 @@
         <Property Name="samlMetadataUrl" Type="Edm.String" />
         <Property Name="servicePrincipalNames" Type="Collection(Edm.String)" Nullable="false" />
         <Property Name="servicePrincipalType" Type="Edm.String" />
+        <Property Name="signInAudience" Type="Edm.String" />
         <Property Name="tags" Type="Collection(Edm.String)" Nullable="false" />
         <Property Name="tokenEncryptionKeyId" Type="Edm.Guid" />
         <NavigationProperty Name="appRoleAssignedTo" Relationship="Microsoft.DirectoryServices.ServicePrincipal_appRoleAssignedTo" ToRole="appRoleAssignedTo" FromRole="ServicePrincipal" />
@@ -356,6 +362,7 @@
         <Property Name="companyName" Type="Edm.String" />
         <Property Name="consentProvidedForMinor" Type="Edm.String" />
         <Property Name="country" Type="Edm.String" />
+        <Property Name="createdDateTime" Type="Edm.DateTime" />
         <Property Name="creationType" Type="Edm.String" />
         <Property Name="department" Type="Edm.String" />
         <Property Name="dirSyncEnabled" Type="Edm.Boolean" />
@@ -394,6 +401,8 @@
         <Property Name="usageLocation" Type="Edm.String" />
         <Property Name="userIdentities" Type="Collection(Microsoft.DirectoryServices.UserIdentity)" Nullable="false" />
         <Property Name="userPrincipalName" Type="Edm.String" />
+        <Property Name="userState" Type="Edm.String" />
+        <Property Name="userStateChangedOn" Type="Edm.DateTime" />
         <Property Name="userType" Type="Edm.String" />
         <NavigationProperty Name="appRoleAssignments" Relationship="Microsoft.DirectoryServices.User_appRoleAssignments" ToRole="appRoleAssignments" FromRole="User" />
         <NavigationProperty Name="licenseDetails" Relationship="Microsoft.DirectoryServices.User_licenseDetails" ToRole="licenseDetails" FromRole="User" />
@@ -433,6 +442,8 @@
         <Property Name="supportedServices" Type="Collection(Edm.String)" Nullable="false" />
         <Property Name="forceDeleteState" Type="Microsoft.DirectoryServices.ForceDeleteState" />
         <Property Name="state" Type="Microsoft.DirectoryServices.DomainState" />
+        <Property Name="passwordValidityPeriodInDays" Type="Edm.Int32" />
+        <Property Name="passwordNotificationWindowInDays" Type="Edm.Int32" />
         <NavigationProperty Name="serviceConfigurationRecords" Relationship="Microsoft.DirectoryServices.Domain_serviceConfigurationRecords" ToRole="serviceConfigurationRecords" FromRole="Domain" />
         <NavigationProperty Name="verificationDnsRecords" Relationship="Microsoft.DirectoryServices.Domain_verificationDnsRecords" ToRole="verificationDnsRecords" FromRole="Domain" />
         <NavigationProperty Name="domainNameReferences" Relationship="Microsoft.DirectoryServices.Domain_domainNameReferences" ToRole="domainNameReferences" FromRole="Domain" />
@@ -702,6 +713,10 @@
         <FunctionImport Name="restore" ReturnType="Microsoft.DirectoryServices.Application" IsBindable="true" EntitySet="directoryObjects" m:IsAlwaysBindable="true">
           <Parameter Name="Application" Type="Microsoft.DirectoryServices.Application" />
           <Parameter Name="identifierUris" Type="Collection(Edm.String)" Nullable="false" />
+        </FunctionImport>
+        <FunctionImport Name="verifyPublisherDomain" IsBindable="true" m:IsAlwaysBindable="true">
+          <Parameter Name="Application" Type="Microsoft.DirectoryServices.Application" />
+          <Parameter Name="publisherDomain" Type="Edm.String" />
         </FunctionImport>
         <FunctionImport Name="verify" ReturnType="Microsoft.DirectoryServices.Domain" IsBindable="true" EntitySet="domains" m:IsAlwaysBindable="true">
           <Parameter Name="Domain" Type="Microsoft.DirectoryServices.Domain" />

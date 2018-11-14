@@ -118,6 +118,10 @@ namespace GraphLite
 		public List<UserIdentity> UserIdentities { get; set; }
 		[JsonProperty("userPrincipalName")]
 		public string UserPrincipalName { get; set; }
+		[JsonProperty("userState")]
+		public string UserState { get; set; }
+		[JsonProperty("userStateChangedOn")]
+		public DateTimeOffset? UserStateChangedOn { get; set; }
 		[JsonProperty("userType")]
 		public string UserType { get; set; }
 	}

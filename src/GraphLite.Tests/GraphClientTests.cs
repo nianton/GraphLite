@@ -77,9 +77,13 @@ namespace GraphLite.Tests
         {
             var user = _client.UserGetAsync(_fixture.TestUserObjectId).Result;
             user.ExtendedProperties.Remove("thumbnailPhoto@odata.mediaEditLink");
-            user.SetExtendedProperty(CustomPropertyName, "000111000");
+ 
+            var extPropertyValue = DateTime.Now.ToString("yyMMddHHmmss");
+            user.SetExtendedProperty(CustomPropertyName, extPropertyValue);
+
             _client.UserUpdateAsync(user.ObjectId, user.ExtendedProperties).Wait();
             Assert.NotNull(user);
+            Assert.Equal(extPropertyValue, user.GetExtendedProperty<string>(CustomPropertyName));
         }
 
         [Fact]
