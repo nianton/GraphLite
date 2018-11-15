@@ -62,7 +62,7 @@ namespace GraphLite.Tests
             var token = new TokenWrapper
             {
                 Expiry = DateTimeOffset.Now.Add(TimeSpan.FromSeconds(authTokenResponse.ExpiresIn)),
-                Token = authTokenResponse.AccessToken
+                AccessToken = authTokenResponse.AccessToken
             };
 
             return token;

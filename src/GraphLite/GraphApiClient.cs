@@ -13,10 +13,29 @@ namespace GraphLite
 {
     public partial class GraphApiClient
     {
+        #region [ Constants ]
+
+        /// <summary>
+        /// The predefined B2C application responsible the tenant's management.
+        /// </summary>
+        public const string B2cExtensionsApplicationName = "b2c-extensions-app";
+
+        /// <summary>
+        /// User's thumbnail max photo size in bytes.
+        /// </summary>
+        public const int MaxThumbnailPhotoSize = 100_000;
+
         /// <summary>
         /// The bearer token scheme.
         /// </summary>
         private const string BearerTokenScheme = "Bearer";
+
+        /// <summary>
+        /// The default Graph API version.
+        /// </summary>
+        private const string DefaultGraphApiVersion = "1.6";
+
+        #endregion
 
         /// <summary>
         /// Patch http method.
@@ -26,7 +45,7 @@ namespace GraphLite
         /// <summary>
         /// The http client instance.
         /// </summary>
-        private static readonly HttpClient Client = new HttpClient();
+        private static readonly HttpClient _client = new HttpClient();
 
         /// <summary>
         /// The initialization semaphore (ensures a single execution of <see cref="EnsureInitAsync"/> for many concurrent calls).
@@ -55,7 +74,7 @@ namespace GraphLite
         /// <param name="applicationSecret">The application secret.</param>
         /// <param name="tenant">The B2C tenant e.g. 'mytenant.onmicrosoft.com'</param>
         public GraphApiClient(string applicationId, string applicationSecret, string tenant)
-            : this(tenant, new DefaultAuthProvider(Client, tenant, applicationId, applicationSecret))
+            : this(tenant, new DefaultAuthProvider(_client, tenant, applicationId, applicationSecret))
         { }
 
         /// <summary>
@@ -74,13 +93,14 @@ namespace GraphLite
 
             _authProvider = authProvider;
             Tenant = tenant;
+            BaseUrl = GraphLiteConfiguration.TenantGraphApiBaseUrl(Tenant);
             Reporting = new ReportingClient(this);
         }
 
         /// <summary>
         /// Gets the base URL.
         /// </summary>
-        protected string BaseUrl => string.Format(GraphLiteConfiguration.BaseUrlFormat, Tenant);
+        protected string BaseUrl  { get; }
 
         /// <summary>
         /// Gets the tenant.
@@ -145,17 +165,15 @@ namespace GraphLite
 
         private async Task<HttpResponseMessage> DoExecuteRequest(HttpMethod method, string resource, string query = null, object body = null, string contentType = null, string[] acceptedContentTypes = null, string apiVersion = null)
         {
-
-            apiVersion = apiVersion ?? GraphLiteConfiguration.DefaultGraphApiVersion;
+            apiVersion = apiVersion ?? DefaultGraphApiVersion;
 
             var url = $"{BaseUrl}/{resource}?api-version={apiVersion}";
             if (!string.IsNullOrWhiteSpace(query))
             {
                 url += $"&{query}";
             }
+
             var requestMessage = new HttpRequestMessage(method, url);
-
-
             if (body != null && (method == HttpMethod.Post || method == HttpMethod.Put || method == HttpMethodPatch))
             {
                 var content = default(HttpContent);
@@ -189,7 +207,7 @@ namespace GraphLite
                 }
             }
             await EnsureAuthorizationHeader(requestMessage);
-            var responseMessage = await Client.SendAsync(requestMessage);
+            var responseMessage = await _client.SendAsync(requestMessage);
 
             if (!responseMessage.IsSuccessStatusCode)
             {
@@ -211,9 +229,9 @@ namespace GraphLite
             await EnsureAccessToken();
             client.Headers.Accept.Clear();
             client.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.Headers.Authorization = _tokenWrapper.Token.StartsWith(BearerTokenScheme, StringComparison.InvariantCultureIgnoreCase)
-                ? AuthenticationHeaderValue.Parse(_tokenWrapper.Token)
-                : new AuthenticationHeaderValue(BearerTokenScheme, _tokenWrapper.Token);
+            client.Headers.Authorization = _tokenWrapper.AccessToken.StartsWith(BearerTokenScheme, StringComparison.InvariantCultureIgnoreCase)
+                ? AuthenticationHeaderValue.Parse(_tokenWrapper.AccessToken)
+                : new AuthenticationHeaderValue(BearerTokenScheme, _tokenWrapper.AccessToken);
         }
 
         private async Task EnsureAccessToken()

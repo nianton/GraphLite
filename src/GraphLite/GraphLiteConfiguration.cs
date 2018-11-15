@@ -5,44 +5,47 @@ namespace GraphLite
 {
     public static class GraphLiteConfiguration
     {
-        private static string _authorityUrlRoot = "https://login.windows.net/";
+        /// <summary>
+        /// The default Azure AD authority URL.
+        /// </summary>
+        public const string AzureADAuthorityUrl = "https://login.windows.net";
 
         /// <summary>
         /// The azure graph resource identifier.
         /// </summary>
         public const string AzureADGraphApiRoot = "https://graph.windows.net";
 
-        public const string BaseUrlFormat = AzureADGraphApiRoot + "/{0}";
-
         /// <summary>
-        /// The predefined B2C application responsible the tenant's management.
+        /// Gets or sets the authority URL root used by the internal AuthProvider, defaults to <see cref="AzureADAuthorityUrl"/>.
         /// </summary>
-        public const string B2cExtensionsApplicationName = "b2c-extensions-app";
-
-        /// <summary>
-        /// Max thumbnail photo size in bytes.
-        /// </summary>
-        public const int MaxThumbnailPhotoSize = 100_000;
-
-        /// <summary>
-        /// The default Graph API version.
-        /// </summary>
-        public static string DefaultGraphApiVersion { get; set; } = "1.6";
-
         public static string AuthorityUrlRoot
         {
             get => _authorityUrlRoot;
-            set => _authorityUrlRoot = value.EndsWith("/") ? value : $"{value}/";
+            set => _authorityUrlRoot = value?.TrimEnd('/');
         }
+        private static string _authorityUrlRoot = AzureADAuthorityUrl;
+
+        /// <summary>
+        /// Get the graph API base URL for the given tenant, eg: https://graph.windows.net/mytenant.onmicrosoft.com
+        /// </summary>
+        /// <param name="tenant">The tenant's identifier, eg: 'mytenant.onmicrosoft.com'</param>
+        public static string TenantGraphApiBaseUrl(string tenant) =>
+            $"{AzureADGraphApiRoot}/{tenant}";
 
         /// <summary>
         /// Gets the authorization token url for the given tenant.
         /// </summary>
-        /// <param name="tenant"></param>
+        /// <param name="tenant">The tenant's identifier, eg: 'mytenant.onmicrosoft.com'</param>
+        /// <param name="v2">Whether to return the version 2.0 endpoint</param>
         public static string AuthTokenEndpoint(string tenant, bool v2 = false) =>
-            WellKnownEndpointsUrl(tenant, v2 ? EndpointPaths.TokenV2 : EndpointPaths.Token);
+            WellKnownEndpointsUrl(tenant, v2 ? EndpointPath.TokenV2 : EndpointPath.Token);
 
-        public static string WellKnownEndpointsUrl(string tenant, EndpointPaths path) =>
-            $"{AuthorityUrlRoot}{tenant}/{path.Value}";
+        /// <summary>
+        /// Wells the known endpoints URL.
+        /// </summary>
+        /// <param name="tenant">The tenant's identifier, eg: 'mytenant.onmicrosoft.com'</param>
+        /// <param name="path">The endpoint path.</param>
+        public static string WellKnownEndpointsUrl(string tenant, EndpointPath path) =>
+            $"{AuthorityUrlRoot}/{tenant}/{path.Value}";
     }
 }
