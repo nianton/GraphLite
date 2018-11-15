@@ -7,6 +7,9 @@ This is a lightweight Graph API client for .NET (Framework 4.5 and Standard 2.0)
 
 More detailed documentation on: **https://nianton.github.io/GraphLite**
 
+Updates in version **1.3.0**
+> * Ability to construct a GraphApiClient with an external authentication callback was added, when relying on an external library for AAD authentication like ADAL.
+
 Updates in version **1.2.5**
 > * Added 2 new properties to User (UserState and UserStateChangedOn) -new in AAD B2C
 
