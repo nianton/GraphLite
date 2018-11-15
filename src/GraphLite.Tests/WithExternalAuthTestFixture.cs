@@ -23,7 +23,7 @@ namespace GraphLite.Tests
             Config = TestsConfig.Create();
             _client = new HttpClient();
             Client = new GraphApiClient(
-               Config.Tenant, async resource => await EnsureAccessTokenAsync(resource));
+               Config.Tenant, async resource => await GetAccessTokenAsync(resource));
 
             TestUser = CreateTestUser();
             TestUser = Client.UserCreateAsync(TestUser).Result;
@@ -35,7 +35,7 @@ namespace GraphLite.Tests
             Client.GroupAddMemberAsync(group.ObjectId, TestUserObjectId).Wait();
         }
         private string AuthTokenEndpoint => $"https://login.windows.net/{Config.Tenant}/oauth2/token";
-        private async Task<TokenWrapper> EnsureAccessTokenAsync(string resource)
+        private async Task<TokenWrapper> GetAccessTokenAsync(string resource)
         {
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, AuthTokenEndpoint);
             var contentParameters = new Dictionary<string, string>
@@ -64,6 +64,7 @@ namespace GraphLite.Tests
                 Expiry = DateTimeOffset.Now.Add(TimeSpan.FromSeconds(authTokenResponse.ExpiresIn)),
                 Token = authTokenResponse.AccessToken
             };
+
             return token;
         }
         private Group CreateTestGroup()

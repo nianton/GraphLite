@@ -75,7 +75,6 @@ namespace GraphLite.Tests
         public void TestUpdateSpecificUser()
         {
             var user = _client.UserGetAsync(_fixture.TestUserObjectId).Result;
-            user.ExtendedProperties.Remove("thumbnailPhoto@odata.mediaEditLink");
             user.SetExtendedProperty(CustomPropertyName, "000111000");
             _client.UserUpdateAsync(user.ObjectId, user.ExtendedProperties).Wait();
             Assert.NotNull(user);
@@ -93,7 +92,6 @@ namespace GraphLite.Tests
         public void TestUpdateSpecificUserAlt()
         {
             var r = _client.UserGetAsync(_fixture.TestUserObjectId).Result;
-            r.ExtendedProperties.Remove("thumbnailPhoto@odata.mediaEditLink");
             r.SetExtendedProperty(CustomPropertyName, DateTime.Now.ToString("HHmmsstttt"));
             _client.UserUpdateAsync(r.ObjectId, r.ExtendedProperties).Wait();
             Assert.NotNull(r);

@@ -8,18 +8,25 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 
 namespace GraphLite
 {
     public partial class GraphApiClient
     {
-        private const string Bearer = "Bearer";
+        /// <summary>
+        /// The bearer token scheme.
+        /// </summary>
+        private const string BearerTokenScheme = "Bearer";
 
         /// <summary>
         /// Patch http method.
         /// </summary>
         private static readonly HttpMethod HttpMethodPatch = new HttpMethod("PATCH");
+
+        /// <summary>
+        /// The http client instance.
+        /// </summary>
+        private static readonly HttpClient Client = new HttpClient();
 
         /// <summary>
         /// The initialization semaphore (ensures a single execution of <see cref="EnsureInitAsync"/> for many concurrent calls).
@@ -31,11 +38,15 @@ namespace GraphLite
         /// </summary>
         private readonly SemaphoreSlim _accessTokenSemaphore = new SemaphoreSlim(1, 1);
 
-        private readonly string _tenant;
+        /// <summary>
+        /// The authentication provider.
+        /// </summary>
+        private readonly IAuthProvider _authProvider;
+
         private string _b2cExtensionsApplicationId;
-        private List<ExtensionProperty> _b2cExtensionsApplicationProperties;
-        private readonly Func<string, Task<TokenWrapper>> _authorizationCallback;
+        private List<ExtensionProperty> _b2cExtensionsApplicationProperties;        
         private string _b2cExtensionsObjectId;
+        private TokenWrapper _tokenWrapper;
 
         /// <summary>
         /// Initializes an instance of the GraphApiClient with the necessary application credentials.
@@ -44,10 +55,8 @@ namespace GraphLite
         /// <param name="applicationSecret">The application secret.</param>
         /// <param name="tenant">The B2C tenant e.g. 'mytenant.onmicrosoft.com'</param>
         public GraphApiClient(string applicationId, string applicationSecret, string tenant)
-            : this(tenant, s => GraphLiteConfiguration.Client.EnsureAccessTokenAsync(s, tenant, new NetworkCredential(applicationId, applicationSecret)))
-        {
-            InputValidator.ValidateInput(applicationId, applicationSecret, tenant);
-        }
+            : this(tenant, new DefaultAuthProvider(Client, tenant, applicationId, applicationSecret))
+        { }
 
         /// <summary>
         ///  Initializes an instance of the GraphApiClient with authorization callback.
@@ -55,25 +64,34 @@ namespace GraphLite
         /// <param name="tenant">The B2C tenant e.g. 'mytenant.onmicrosoft.com'</param>
         /// <param name="authorizationCallback">Callback to provide the content of the http Authorize header and the expiry time for the token</param>
         public GraphApiClient(string tenant, Func<string, Task<TokenWrapper>> authorizationCallback)
+            : this(tenant, new DelegateAuthProvider(authorizationCallback))
+        { }
+
+        private GraphApiClient(string tenant, IAuthProvider authProvider)
         {
-            InputValidator.ValidateInput(tenant, authorizationCallback);
-            _tenant = tenant;
-            _authorizationCallback = authorizationCallback;
+            if (string.IsNullOrWhiteSpace(tenant))
+                throw new ArgumentNullException(nameof(tenant));
+
+            _authProvider = authProvider;
+            Tenant = tenant;
             Reporting = new ReportingClient(this);
         }
 
         /// <summary>
         /// Gets the base URL.
         /// </summary>
-        protected string BaseUrl => string.Format(GraphLiteConfiguration.BaseUrlFormat, _tenant);
+        protected string BaseUrl => string.Format(GraphLiteConfiguration.BaseUrlFormat, Tenant);
 
+        /// <summary>
+        /// Gets the tenant.
+        /// </summary>
+        public string Tenant { get; }
+        
         /// <summary>
         /// Gets the reporting client.
         /// </summary>
         public IReportingClient Reporting { get; }
-
-        private TokenWrapper Token { get; set; }
-
+        
         /// <summary>
         /// Ensures that the client is initialized with the necessary B2C extension application metadata.
         /// This is required to handle extension properties for the B2C Users.
@@ -171,7 +189,7 @@ namespace GraphLite
                 }
             }
             await EnsureAuthorizationHeader(requestMessage);
-            var responseMessage = await GraphLiteConfiguration.Client.SendAsync(requestMessage);
+            var responseMessage = await Client.SendAsync(requestMessage);
 
             if (!responseMessage.IsSuccessStatusCode)
             {
@@ -192,25 +210,22 @@ namespace GraphLite
         {
             await EnsureAccessToken();
             client.Headers.Accept.Clear();
-            client.Headers.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("application/json"));
-            if (Token.Token.StartsWith(Bearer, StringComparison.InvariantCultureIgnoreCase))
-                client.Headers.Authorization = AuthenticationHeaderValue.Parse(Token.Token);
-            else
-                client.Headers.Authorization = new AuthenticationHeaderValue(Bearer, Token.Token);
-
+            client.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.Headers.Authorization = _tokenWrapper.Token.StartsWith(BearerTokenScheme, StringComparison.InvariantCultureIgnoreCase)
+                ? AuthenticationHeaderValue.Parse(_tokenWrapper.Token)
+                : new AuthenticationHeaderValue(BearerTokenScheme, _tokenWrapper.Token);
         }
 
         private async Task EnsureAccessToken()
         {
-            if (DateTimeOffset.Now > Token.Expiry.GetValueOrDefault())
+            if (DateTimeOffset.Now > _tokenWrapper.Expiry.GetValueOrDefault())
             {
                 await _accessTokenSemaphore.WaitAsync();
                 try
                 {
-                    if (DateTimeOffset.Now > Token.Expiry.GetValueOrDefault())
+                    if (DateTimeOffset.Now > _tokenWrapper.Expiry.GetValueOrDefault())
                     {
-                        Token = await _authorizationCallback.Invoke(GraphLiteConfiguration.AzureGraphResourceId);
+                        _tokenWrapper = await _authProvider.GetAccessTokenAsync(GraphLiteConfiguration.AzureADGraphApiRoot);
                     }
                 }
                 finally

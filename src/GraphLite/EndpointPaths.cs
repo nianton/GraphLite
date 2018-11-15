@@ -11,7 +11,8 @@
         {
             Value = value;
         }
-        public string Value { get; set; }
+
+        public string Value { get; }
 
         public static EndpointPaths OpenIdConnectWellKnown { get; } = new EndpointPaths(".well-known/openid-configuration");
 

@@ -18,8 +18,7 @@ namespace GraphLite
         /// <param name="error">The error.</param>
         public GraphAuthException(HttpRequestMessage request, HttpResponseMessage response, ErrorInfo error)
             : base($"Error Authenticating the application's credentials. Code: {error?.Error} \n")
-        {
-            
+        {            
             RequestMessage = request;
             ResponseMessage = response;
             Error = error;

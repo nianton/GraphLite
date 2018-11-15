@@ -6,8 +6,13 @@ namespace GraphLite
     public static class GraphLiteConfiguration
     {
         private static string _authorityUrlRoot = "https://login.windows.net/";
-        internal static HttpClient Client { get; } = new HttpClient();
-        public static string BaseUrlFormat { get; set; } = "https://graph.windows.net/{0}";
+
+        /// <summary>
+        /// The azure graph resource identifier.
+        /// </summary>
+        public const string AzureADGraphApiRoot = "https://graph.windows.net";
+
+        public const string BaseUrlFormat = AzureADGraphApiRoot + "/{0}";
 
         /// <summary>
         /// The predefined B2C application responsible the tenant's management.
@@ -24,8 +29,6 @@ namespace GraphLite
         /// </summary>
         public static string DefaultGraphApiVersion { get; set; } = "1.6";
 
-        public static string AzureGraphResourceId { get; } = "https://graph.windows.net";
-
         public static string AuthorityUrlRoot
         {
             get => _authorityUrlRoot;
@@ -33,10 +36,9 @@ namespace GraphLite
         }
 
         /// <summary>
-        /// Get the formatted url to the au
+        /// Gets the authorization token url for the given tenant.
         /// </summary>
         /// <param name="tenant"></param>
-        /// <returns></returns>
         public static string AuthTokenEndpoint(string tenant, bool v2 = false) =>
             WellKnownEndpointsUrl(tenant, v2 ? EndpointPaths.TokenV2 : EndpointPaths.Token);
 
