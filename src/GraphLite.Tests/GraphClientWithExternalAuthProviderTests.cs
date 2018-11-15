@@ -1,4 +1,3 @@
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,13 +8,13 @@ using Xunit;
 namespace GraphLite.Tests
 {
     [TestCaseOrderer("GraphLite.Tests.TestNameCaseOrderer", "GraphLite.Tests")]
-    public class GraphClientTests : IClassFixture<TestFixture>
+    public class GraphClientWithExternalAuthProviderTests : IClassFixture<WithExternalAuthTestFixture>
     {
         private const string CustomPropertyName = "TaxRegistrationNumber";
         private readonly GraphApiClient _client;
-        private readonly TestFixture _fixture;
+        private readonly WithExternalAuthTestFixture _fixture;
 
-        public GraphClientTests(TestFixture fixture)
+        public GraphClientWithExternalAuthProviderTests(WithExternalAuthTestFixture fixture)
         {
             _fixture = fixture;
             _client = fixture.Client;
@@ -76,12 +75,9 @@ namespace GraphLite.Tests
         public void TestUpdateSpecificUser()
         {
             var user = _client.UserGetAsync(_fixture.TestUserObjectId).Result;
-            var extPropertyValue = DateTime.Now.ToString("yyMMddHHmmss");
-            user.SetExtendedProperty(CustomPropertyName, extPropertyValue);
-
+            user.SetExtendedProperty(CustomPropertyName, "000111000");
             _client.UserUpdateAsync(user.ObjectId, user.ExtendedProperties).Wait();
             Assert.NotNull(user);
-            Assert.Equal(extPropertyValue, user.GetExtendedProperty<string>(CustomPropertyName));
         }
 
         [Fact]
@@ -205,11 +201,11 @@ namespace GraphLite.Tests
                 DisplayName = $"John Smith {id}",
                 SignInNames = new List<SignInName>
                 {
-                     new SignInName()
-                     {
-                         Type = "emailAddress",
-                         Value = $"nian.t.o.n-{id}@gmail.com"
-                     }
+                    new SignInName()
+                    {
+                        Type = "emailAddress",
+                        Value = $"nian.t.o.n-{id}@gmail.com"
+                    }
                 },
                 PasswordProfile = new PasswordProfile
                 {
@@ -237,11 +233,11 @@ namespace GraphLite.Tests
                 DisplayName = $"John Smith {id}",
                 SignInNames = new List<SignInName>
                 {
-                     new SignInName()
-                     {
-                         Type = "emailAddress",
-                         Value = $"nian.t.o.n-{id}@gmail.com"
-                     }
+                    new SignInName()
+                    {
+                        Type = "emailAddress",
+                        Value = $"nian.t.o.n-{id}@gmail.com"
+                    }
                 },
                 PasswordProfile = new PasswordProfile
                 {

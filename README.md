@@ -7,7 +7,7 @@ This is a lightweight Graph API client for .NET (Framework 4.5 and Standard 2.0)
 
 More detailed documentation on: **https://nianton.github.io/GraphLite**
 
-Updates in version **1.2.4**
+Updates in version **1.2.5**
 > * Added 2 new properties to User (UserState and UserStateChangedOn) -new in AAD B2C
 
 Updates in version **1.2.2**

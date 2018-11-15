@@ -49,6 +49,7 @@ namespace GraphLite
                 ExtendedProperties = new Dictionary<string, JToken>();
 
             ExtendedProperties[$"{GetExtendedPropertyPrefix()}{name}"] = JToken.FromObject(value);
+            
         }
 
         public TValue GetExtendedProperty<TValue>(string name)

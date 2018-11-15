@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 using Xunit;
 
 namespace GraphLite.Tests
-{  
+{
     public class GraphClientQueryTests : IClassFixture<TestFixture>
     {
-        readonly GraphApiClient _client;
-        readonly TestFixture _fixture;
+        private readonly GraphApiClient _client;
+        private readonly TestFixture _fixture;
 
         public GraphClientQueryTests(TestFixture fixture)
         {
@@ -21,7 +21,7 @@ namespace GraphLite.Tests
         public void TestQueryInOperator()
         {
             var userQuery = new ODataQuery<User>()
-                .WhereIn(u => u.UserPrincipalName, "another@gmail.com", "another2@gmail.com")                
+                .WhereIn(u => u.UserPrincipalName, "another@gmail.com", "another2@gmail.com")
                 .Top(20)
                 .OrderBy(u => u.MailNickname);
 
