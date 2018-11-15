@@ -14,6 +14,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphLite", "GraphLite\Grap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphLite.Tests", "GraphLite.Tests\GraphLite.Tests.csproj", "{5D3333EA-B679-49B7-BD19-CE1D0B4B98CC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{49B84DCA-03B0-4A18-90F1-603AB9F1845C}"
+	ProjectSection(SolutionItems) = preProject
+		..\docs\_config.yml = ..\docs\_config.yml
+		..\docs\applications.md = ..\docs\applications.md
+		..\docs\index.md = ..\docs\index.md
+		..\docs\reporting.md = ..\docs\reporting.md
+		..\docs\users.md = ..\docs\users.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -26,15 +26,36 @@ var userCounts = await client.Reporting.GetTenantUserCountSummariesAsync(lastWee
 
 Summary of the daily number of billable authentications over the last 30 days, by day and type of authentication flow.
 
-[TODO:// Documentation]
+```csharp
+// Get the daily user counts for the last week.
+client.Reporting.GetAuthenticationCountSummariesAsync()
+```
 
 ## Get Daily Authentication Count summaries
 
-[TODO:// Documentation]
+Gets the summaries of billable authentications over the last 30 days, by day and type of authentication flow
+```csharp
+// Get the daily user counts for the last week.
+client.Reporting.GetAuthenticationCountSummariesAsync()
+```
+
+## Get Mfa Request Count
+The number of MFA requests within a time period. If not defined (optional parameters), defaults to the last 30 days.
+
+```csharp
+// Gets the billable MFA requests for the last week.
+var startTimeStamp = DateTimeOffset.Now.AddDays(-7);
+var endTimeStamp = default(DateTimeOffset?);
+var mfaRequestCount = await client.Reporting.GetMfaRequestCountAsync(startTimeStamp: startTimeStamp, endTimeStamp: endTimeStamp);
+```
 
 ## Get Daily MFA Request Counts summaries
+Retrive the summaries of billable MFA requests over the last 30 days, by day and type of MFA request.
 
-[TODO:// Documentation]
+```csharp
+// Get the billable MFA requests for the last 30 days.
+var mfaSummaries = await client.Reporting.GetMfaRequestCountSummariesAsync();
+```
 
 
 [<< Go back](./)

@@ -35,6 +35,11 @@ namespace GraphLite
         /// </summary>
         private const string DefaultGraphApiVersion = "1.6";
 
+        /// <summary>
+        /// The default B2C Reporting API version.
+        /// </summary>
+        private const string DefaultReportingApiVersion = "beta";
+
         #endregion
 
         /// <summary>

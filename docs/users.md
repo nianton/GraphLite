@@ -47,7 +47,7 @@ var totalCount = 0;
 // Optional progress reporting
 var progress = new Progress<IList<User>>(pagedUsers => 
 { 
-    // Report progress here
+    // Report progress here, possibly update UI etc
     totalCount += pagedUsers.Count; 
 });
 
@@ -83,7 +83,7 @@ var user = new User
     }
 };
 
-// Supports extended B2C tenant properties e.g. for a property 
+// Supports extended B2C tenant properties e.g. sample for a property 
 // 'TaxRegistrationNumber' registered on the tenant:
 user.SetExtendedProperty("TaxRegistrationNumber", "120498219");
 
@@ -141,7 +141,7 @@ Retrieves a User's thumbnail image data (usually JPEG format).
 
 ```csharp
 var userObjectId = "<user-id>";
-var imageData = new byte[0]; // Thumbnail's byte array
+var imageData = File.ReadAllBytes("myavatar.jpg"); // Thumbnail's byte array
 var contentType = "image/jpeg";
 
 await client.UserUpdateThumbnailAsync(userObjectId, imageData, contentType);

@@ -36,7 +36,7 @@ namespace GraphLite
                         .ToString();
                 }
 
-                var result = await _client.ExecuteRequest<ODataResponse<DailyTenantCountSummary>>(HttpMethod.Get, resource, query, apiVersion: "beta");
+                var result = await _client.ExecuteRequest<ODataResponse<DailyTenantCountSummary>>(HttpMethod.Get, resource, query, apiVersion: DefaultReportingApiVersion);
                 return result.Value;
             }
 
@@ -65,7 +65,7 @@ namespace GraphLite
                     .Replace("StartTimeStamp", "TimeStamp")
                     .Replace("EndTimeStamp", "TimeStamp");
 
-                var result = await _client.ExecuteRequest<ODataResponse<PeriodAuthenticationCounts>>(HttpMethod.Get, resource, qs, apiVersion: "beta");
+                var result = await _client.ExecuteRequest<ODataResponse<PeriodAuthenticationCounts>>(HttpMethod.Get, resource, qs, apiVersion: DefaultReportingApiVersion);
                 return result.Value.Single();
             }
 
@@ -95,7 +95,7 @@ namespace GraphLite
                     .Replace("StartTimeStamp", "TimeStamp")
                     .Replace("EndTimeStamp", "TimeStamp");
 
-                var result = await _client.ExecuteRequest<ODataResponse<PeriodMfaRequestCounts>>(HttpMethod.Get, resource, qs, apiVersion: "beta");
+                var result = await _client.ExecuteRequest<ODataResponse<PeriodMfaRequestCounts>>(HttpMethod.Get, resource, qs, apiVersion: DefaultReportingApiVersion);
                 return result.Value.Single();
             }
 
@@ -106,7 +106,7 @@ namespace GraphLite
             public async Task<IList<DailyAuthenticationCountSummary>> GetAuthenticationCountSummariesAsync()
             {
                 var resource = "reports/b2cAuthenticationCountSummary";
-                var result = await _client.ExecuteRequest<ODataResponse<DailyAuthenticationCountSummary>>(HttpMethod.Get, resource, apiVersion: "beta");
+                var result = await _client.ExecuteRequest<ODataResponse<DailyAuthenticationCountSummary>>(HttpMethod.Get, resource, apiVersion: DefaultReportingApiVersion);
                 return result.Value;
             }
 
@@ -117,7 +117,7 @@ namespace GraphLite
             public async Task<IList<DailyAuthenticationCountSummary>> GetMfaRequestCountSummariesAsync()
             {
                 var resource = "reports/b2cMfaRequestCountSummary";
-                var result = await _client.ExecuteRequest<ODataResponse<DailyAuthenticationCountSummary>>(HttpMethod.Get, resource, apiVersion: "beta");
+                var result = await _client.ExecuteRequest<ODataResponse<DailyAuthenticationCountSummary>>(HttpMethod.Get, resource, apiVersion: DefaultReportingApiVersion);
                 return result.Value;
             }
         }
