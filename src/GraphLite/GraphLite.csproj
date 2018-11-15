@@ -14,9 +14,9 @@
     <RepositoryType>Git</RepositoryType>
     <PackageTags>AAD B2C, Graph, GraphAPI, Graph API Client, Azure Active Directory B2C, AAD-B2C, AADB2C</PackageTags>
     <Description>Lightweight Graph API client for the user management and reporting needs of a AAD B2C tenant.</Description>
-    <PackageReleaseNotes>Minor changes -applied two new User properties that AAD B2C added.</PackageReleaseNotes>
+    <PackageReleaseNotes>Ability to construct a GraphApiClient with an external authentication callback was added, when relying on an external library for AAD authentication like ADAL.</PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/nianton/GraphLite/master/graphlite.png</PackageIconUrl>
-    <Version>1.2.5</Version>
+    <Version>1.3.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
