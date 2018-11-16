@@ -2,6 +2,7 @@
 
 [![NuGet](https://img.shields.io/nuget/dt/GraphLite.svg)](https://www.nuget.org/packages/GraphLite/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
+[![Build status](https://dev.azure.com/nianton/GraphLite/_apis/build/status/GraphLite-CI)](https://dev.azure.com/nianton/GraphLite/_build/latest?definitionId=1)
 
 This is a lightweight Graph API client for .NET (Framework 4.5 and Standard 2.0) for the user management and reporting needs of an Active Directory B2C Client tenant. 
 
