@@ -32,6 +32,13 @@ namespace GraphLite.Tests
         }
 
         [Fact]
+        public async Task TestGetMfaRequestCount()
+        {
+            var mfaRequestCounts = await _reportingClient.GetMfaRequestCountAsync();
+            Assert.NotNull(mfaRequestCounts);
+        }
+
+        [Fact]
         public async Task TestGetMfaRequestCountSummaries()
         {
             var mfaRequestSummaries = await _reportingClient.GetMfaRequestCountSummariesAsync();

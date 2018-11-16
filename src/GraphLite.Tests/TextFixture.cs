@@ -25,14 +25,20 @@ namespace GraphLite.Tests
                 Config.Tenant
             );
 
+            // Wrapped in Task.Run as non-deadlocking synchronous call.
+            Task.Run(() => InitAsync()).Wait();
+        }
+
+        private async Task InitAsync()
+        {
             TestUser = CreateTestUser();
-            TestUser = Task.Run(() => Client.UserCreateAsync(TestUser)).Result;
+            TestUser = await Client.UserCreateAsync(TestUser);
 
             var group = CreateTestGroup();
-            group = Task.Run(() => Client.GroupCreateAsync(group)).Result;
+            group = await Client.GroupCreateAsync(group);
             TestGroupObjectId = group.ObjectId;
 
-            Task.Run(() => Client.GroupAddMemberAsync(group.ObjectId, TestUserObjectId)).Wait();
+            await Client.GroupAddMemberAsync(group.ObjectId, TestUserObjectId);
         }
 
         private Group CreateTestGroup()
@@ -78,14 +84,19 @@ namespace GraphLite.Tests
             user.SetExtendedProperty("TaxRegistrationNumber", "123123123");
             return user;
         }
+        private async Task DisposeAsync()
+        {
+            var testUser = await Client.UserGetAsync(TestUserObjectId);
+            if (testUser != null)
+                await Client.UserDeleteAsync(TestUserObjectId);
+
+            await Client.GroupDeleteAsync(TestGroupObjectId);
+        }
 
         public void Dispose()
         {
-            var testUser = Task.Run(() => Client.UserGetAsync(TestUserObjectId)).Result;
-            if (testUser != null)
-                Task.Run(() => Client.UserDeleteAsync(TestUserObjectId)).Wait();
-
-            Task.Run(() => Client.GroupDeleteAsync(TestGroupObjectId)).Wait();
+            // Wrapped in Task.Run as non-deadlocking synchronous call.
+            Task.Run(() => DisposeAsync()).Wait();
         }
     }
 }
