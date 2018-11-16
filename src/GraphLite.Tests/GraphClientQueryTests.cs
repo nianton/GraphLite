@@ -46,9 +46,9 @@ namespace GraphLite.Tests
 
 
         [Fact]
-        public void TestQueryByExtensionProperty()
+        public async Task TestQueryByExtensionProperty()
         {
-            var userQuery = _client.UserQueryCreateAsync().Result;
+            var userQuery = await _client.UserQueryCreateAsync();
             var extPropertyName = "TaxRegistrationNumber";
 
             userQuery
@@ -57,31 +57,32 @@ namespace GraphLite.Tests
                 .Top(20)
                 .OrderBy(u => u.MailNickname);
 
-            var extAppId = _client.GetB2cExtensionsApplicationAsync().Result.AppId;
+            var extApp = await _client.GetB2cExtensionsApplicationAsync();
+            var extAppId = extApp.AppId;
             var expected = $"$top=20&$orderby=mailNickname&$filter=extension_{extAppId.Replace("-", string.Empty)}_{extPropertyName} eq '1235453' and givenName ge 'nikos'";
             var actualDecoded = System.Net.WebUtility.UrlDecode(userQuery.ToString());
             Assert.Equal(expected, actualDecoded);
         }
 
         [Fact]
-        public void TestFetchByUserName()
+        public async Task TestFetchByUserName()
         {
             var signinName = _fixture.TestUser.SignInNames[0].Value;
-            var user = _client.UserGetBySigninNameAsync(signinName).Result;
+            var user = await _client.UserGetBySigninNameAsync(signinName);
             Assert.Equal(_fixture.TestUserObjectId, user.ObjectId);
         }
 
 
 
         [Fact]
-        public void TestFetchByExtensionProperty()
+        public async Task TestFetchByExtensionProperty()
         {
             var extPropertyName = "TaxRegistrationNumber";
-            var userQuery = _client.UserQueryCreateAsync()
-                .Result
+            var userQuery = await _client.UserQueryCreateAsync();
+            userQuery
                 .WhereExtendedProperty(extPropertyName, _fixture.TestUser.GetExtendedProperties()[extPropertyName], ODataOperator.Equals);
 
-            var users = _client.UserGetListAsync(userQuery).Result;
+            var users = await _client.UserGetListAsync(userQuery);
             Assert.NotEmpty(users.Items);
             Assert.Contains(users.Items, item => item.ObjectId == _fixture.TestUserObjectId);
         }
@@ -92,18 +93,17 @@ namespace GraphLite.Tests
         {
             var extPropertyName = "TaxRegistrationNumber";
             var userQuery = await _client.UserQueryCreateAsync();
-            userQuery
-                .WhereExtendedProperty(extPropertyName, "1", ODataOperator.GreaterThan);
+            userQuery.WhereExtendedProperty(extPropertyName, "1", ODataOperator.GreaterThan);
 
             await Assert.ThrowsAsync<GraphApiException>(() => _client.UserGetListAsync(userQuery));
         }
 
         [Fact]
-        public void TestFetchByUserNameViaStandardQuery()
+        public async Task TestFetchByUserNameViaStandardQuery()
         {
             var signinName = _fixture.TestUser.SignInNames[0].Value;
             var query = new ODataQuery<User>().Where(u => u.SignInNames, sn => sn.Value, signinName, ODataOperator.Equals);
-            var users = _client.UserGetListAsync(query).Result;
+            var users = await _client.UserGetListAsync(query);
             Assert.Single(users.Items);
             Assert.Equal(_fixture.TestUserObjectId, users.Items[0].ObjectId);
         }
