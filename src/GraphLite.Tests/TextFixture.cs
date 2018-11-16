@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace GraphLite.Tests
@@ -7,6 +8,7 @@ namespace GraphLite.Tests
     public class TestFixture : IDisposable
     {
         public TestsConfig Config { get; set; }
+
         public GraphApiClient Client { get; set; }
 
         public string TestUserObjectId => TestUser.ObjectId;
@@ -15,15 +17,11 @@ namespace GraphLite.Tests
 
         public string TestGroupObjectId { get; set; }
 
+        public string ExtensionPropertyName { get; set; }
+
         public TestFixture()
         {
             Config = TestsConfig.Create();
-
-            Client = new GraphApiClient(
-                Config.ApplicationId,
-                Config.ApplicationSecret,
-                Config.Tenant
-            );
 
             // Wrapped in Task.Run as non-deadlocking synchronous call.
             Task.Run(() => InitAsync()).Wait();
@@ -31,6 +29,18 @@ namespace GraphLite.Tests
 
         private async Task InitAsync()
         {
+            Client = new GraphApiClient(
+                Config.ApplicationId,
+                Config.ApplicationSecret,
+                Config.Tenant
+            );
+
+            await Client.EnsureInitAsync();
+            var b2cApp = await Client.GetB2cExtensionsApplicationAsync();
+
+            var extProperties = await Client.GetApplicationExtensionsAsync(b2cApp.ObjectId);
+            ExtensionPropertyName = extProperties.FirstOrDefault()?.GetSimpleName();
+
             TestUser = CreateTestUser();
             TestUser = await Client.UserCreateAsync(TestUser);
 
@@ -70,7 +80,7 @@ namespace GraphLite.Tests
                      new SignInName()
                      {
                          Type = "emailAddress",
-                         Value = $"nian.t.o.n-{id}@gmail.com"
+                         Value = $"testuser-{id}@gmail.com"
                      }
                 },
                 PasswordProfile = new PasswordProfile
@@ -81,7 +91,7 @@ namespace GraphLite.Tests
                 }
             };
 
-            user.SetExtendedProperty("TaxRegistrationNumber", "123123123");
+            user.SetExtendedProperty(ExtensionPropertyName, "123123123");
             return user;
         }
         private async Task DisposeAsync()

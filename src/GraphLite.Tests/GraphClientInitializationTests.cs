@@ -7,7 +7,7 @@ using Xunit;
 
 namespace GraphLite.Tests
 {
-    public class GraphClientInitializationTests : IClassFixture<TestFixture>
+    public class GraphClientInitializationTests
     {
         private readonly TestsConfig Config = TestsConfig.Create();
         private string AuthTokenEndpoint => $"https://login.windows.net/{Config.Tenant}/oauth2/token";

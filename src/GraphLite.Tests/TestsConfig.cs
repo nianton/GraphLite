@@ -12,6 +12,7 @@ namespace GraphLite.Tests
         public string ApplicationId { get; set; }
         public string ApplicationSecret { get; set; }
         public string Tenant { get; set; }
+        public string ExtensionPropertyName { get; set; }
 
         public static TestsConfig Create()
         {
@@ -27,7 +28,8 @@ namespace GraphLite.Tests
             {
                 ApplicationId = configuration["applicationId"],
                 ApplicationSecret = configuration["applicationSecret"],
-                Tenant = configuration["tenant"]
+                Tenant = configuration["tenant"],
+                ExtensionPropertyName = configuration["extensionProperty"] ?? "TaxRegistrationNumber"
             };
         }
     }

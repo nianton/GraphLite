@@ -49,7 +49,7 @@ namespace GraphLite.Tests
         public async Task TestQueryByExtensionProperty()
         {
             var userQuery = await _client.UserQueryCreateAsync();
-            var extPropertyName = "TaxRegistrationNumber";
+            var extPropertyName = _fixture.ExtensionPropertyName;
 
             userQuery
                 .WhereExtendedProperty(extPropertyName, "1235453", ODataOperator.Equals)
@@ -77,7 +77,7 @@ namespace GraphLite.Tests
         [Fact]
         public async Task TestFetchByExtensionProperty()
         {
-            var extPropertyName = "TaxRegistrationNumber";
+            var extPropertyName = _fixture.ExtensionPropertyName;
             var userQuery = await _client.UserQueryCreateAsync();
             userQuery
                 .WhereExtendedProperty(extPropertyName, _fixture.TestUser.GetExtendedProperties()[extPropertyName], ODataOperator.Equals);
@@ -91,7 +91,7 @@ namespace GraphLite.Tests
         [Fact]
         public async Task TestFetchByExtensionPropertyGreaterThan()
         {
-            var extPropertyName = "TaxRegistrationNumber";
+            var extPropertyName = _fixture.ExtensionPropertyName;
             var userQuery = await _client.UserQueryCreateAsync();
             userQuery.WhereExtendedProperty(extPropertyName, "1", ODataOperator.GreaterThan);
 
