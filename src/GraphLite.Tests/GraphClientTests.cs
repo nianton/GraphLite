@@ -1,4 +1,3 @@
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,16 +21,16 @@ namespace GraphLite.Tests
         }
 
         [Fact]
-        public void TestGetUsers()
+        public async Task TestGetUsers()
         {
-            var users = _client.UserGetAllAsync().Result;
+            var users = await _client.UserGetAllAsync();
             Assert.NotEmpty(users);
         }
 
         [Fact]
-        public void TestGet2Users()
+        public async Task TestGet2Users()
         {
-            var r = _client.UserGetListAsync(top: 2).Result;
+            var r = await _client.UserGetListAsync(top: 2);
             Assert.NotNull(r);
             Assert.Equal(2, r.Items.Count);
         }
@@ -59,23 +58,23 @@ namespace GraphLite.Tests
         }
 
         [Fact]
-        public void TestGetExtensionsApp()
+        public async Task TestGetExtensionsApp()
         {
-            var r = _client.GetB2cExtensionsApplicationAsync().Result;
+            var r = await _client.GetB2cExtensionsApplicationAsync();
             Assert.NotNull(r);
         }
 
         [Fact]
-        public void TestGetSpecificUser()
+        public async Task TestGetSpecificUser()
         {
-            var r = _client.UserGetAsync(_fixture.TestUserObjectId).Result;
+            var r = await _client.UserGetAsync(_fixture.TestUserObjectId);
             Assert.NotNull(r);
         }
 
         [Fact]
-        public void TestUpdateSpecificUser()
+        public async Task TestUpdateSpecificUser()
         {
-            var user = _client.UserGetAsync(_fixture.TestUserObjectId).Result;
+            var user = await _client.UserGetAsync(_fixture.TestUserObjectId);
             var extPropertyValue = DateTime.Now.ToString("yyMMddHHmmss");
             user.SetExtendedProperty(CustomPropertyName, extPropertyValue);
 
@@ -85,46 +84,46 @@ namespace GraphLite.Tests
         }
 
         [Fact]
-        public void TestGetUserBySignInName()
+        public async Task TestGetUserBySignInName()
         {
-            var user = _client.UserGetBySigninNameAsync(_fixture.TestUser.SignInNames.First().Value).Result;
+            var user = await _client.UserGetBySigninNameAsync(_fixture.TestUser.SignInNames.First().Value);
             Assert.NotNull(user);
             Assert.Equal(_fixture.TestUserObjectId, user.ObjectId);
         }
 
         [Fact]
-        public void TestUpdateSpecificUserAlt()
+        public async Task TestUpdateSpecificUserAlt()
         {
-            var r = _client.UserGetAsync(_fixture.TestUserObjectId).Result;
+            var r = await _client.UserGetAsync(_fixture.TestUserObjectId);
             r.SetExtendedProperty(CustomPropertyName, DateTime.Now.ToString("HHmmsstttt"));
             _client.UserUpdateAsync(r.ObjectId, r.ExtendedProperties).Wait();
             Assert.NotNull(r);
         }
 
         [Fact]
-        public void TestApplicationExtensions()
+        public async Task TestApplicationExtensions()
         {
-            var app = _client.GetB2cExtensionsApplicationAsync().Result;
-            var extensions = _client.GetApplicationExtensionsAsync(app.ObjectId).Result;
+            var app = await _client.GetB2cExtensionsApplicationAsync();
+            var extensions = _client.GetApplicationExtensionsAsync(app.ObjectId);
             Assert.NotNull(extensions);
         }
 
         [Fact]
-        public void TestUpdateSpecificUserThumbnail()
+        public async Task TestUpdateSpecificUserThumbnail()
         {
-            var r = _client.UserGetAsync(_fixture.TestUserObjectId).Result;
+            var r = await _client.UserGetAsync(_fixture.TestUserObjectId);
             var thumb = File.ReadAllBytes("thumbnails/random-thumbnail-400.jpg");
-            _client.UserUpdateThumbnailAsync(r.ObjectId, thumb).Wait();
+            await _client.UserUpdateThumbnailAsync(r.ObjectId, thumb);
             Assert.True(true);
         }
 
         [Fact]
-        public void TestGetSpecificUserThumbnail()
+        public async Task TestGetSpecificUserThumbnail()
         {
-            var user = _client.UserGetAsync(_fixture.TestUserObjectId).Result;
+            var user = await _client.UserGetAsync(_fixture.TestUserObjectId);
             if (user.ThumbnailContentType != null)
             {
-                var r2 = _client.UserGetThumbnailAsync(user.ObjectId).Result;
+                var r2 = await _client.UserGetThumbnailAsync(user.ObjectId);
                 File.WriteAllBytes("test.jpg", r2);
                 Assert.NotNull(r2);
             }
@@ -154,16 +153,16 @@ namespace GraphLite.Tests
         }
 
         [Fact]
-        public void TestGetGroups()
+        public async Task TestGetGroups()
         {
-            var groups = _client.GroupGetListAsync().Result;
+            var groups = await _client.GroupGetListAsync();
             Assert.NotEmpty(groups.Items);
         }
 
         [Fact]
-        public void TestGetGroupMembers()
+        public async Task TestGetGroupMembers()
         {
-            var memberIds = _client.GroupGetMembersAsync(_fixture.TestGroupObjectId).Result;
+            var memberIds = await _client.GroupGetMembersAsync(_fixture.TestGroupObjectId);
             Assert.NotEmpty(memberIds);
         }
 
@@ -172,14 +171,14 @@ namespace GraphLite.Tests
         {
             var userId = _fixture.TestUserObjectId;
             var user = await _client.UserGetAsync(userId);
-            var groupIds = _client.UserGetMemberGroupsAsync(user.ObjectId).Result;
+            var groupIds = await _client.UserGetMemberGroupsAsync(user.ObjectId);
             Assert.NotEmpty(groupIds);
         }
 
         [Fact]
-        public void TestIsGroupMember()
+        public async Task TestIsGroupMember()
         {
-            var isMember = _client.IsMemberOfGroupAsync(_fixture.TestGroupObjectId, _fixture.TestUserObjectId).Result;
+            var isMember = await _client.IsMemberOfGroupAsync(_fixture.TestGroupObjectId, _fixture.TestUserObjectId);
             Assert.True(isMember);
         }
 
@@ -188,11 +187,11 @@ namespace GraphLite.Tests
         {
             var userId = _fixture.TestUserObjectId;
             var user = await _client.UserGetAsync(userId);
-            _client.UserResetPasswordAsync(user.ObjectId, "Test1234!!", true).Wait();
+            await _client.UserResetPasswordAsync(user.ObjectId, "Test1234!!", true);
         }
 
         [Fact]
-        public void TestCreateUser()
+        public async Task TestCreateUser()
         {
             var id = $"{Guid.NewGuid()}";
 
@@ -219,7 +218,7 @@ namespace GraphLite.Tests
                 }
             };
 
-            var newUser = _client.UserCreateAsync(user).Result;
+            var newUser = await _client.UserCreateAsync(user);
             Assert.NotNull(newUser);
         }
 

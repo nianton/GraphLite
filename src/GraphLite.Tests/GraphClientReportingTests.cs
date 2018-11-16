@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace GraphLite.Tests
@@ -17,30 +18,30 @@ namespace GraphLite.Tests
         }
 
         [Fact]
-        public void TestTenantUserCounts()
+        public async Task TestTenantUserCounts()
         {
-            var userCounts = _reportingClient.GetTenantUserCountSummariesAsync().Result;
+            var userCounts = await _reportingClient.GetTenantUserCountSummariesAsync();
             Assert.NotEmpty(userCounts);
         }
 
         [Fact]
-        public void TestGetDailySummariesCounts()
+        public async Task TestGetDailySummariesCounts()
         {
-            var dailySummaries = _reportingClient.GetAuthenticationCountSummariesAsync().Result;
+            var dailySummaries = await _reportingClient.GetAuthenticationCountSummariesAsync();
             Assert.NotNull(dailySummaries);
         }
 
         [Fact]
-        public void TestGetMfaRequestCountSummaries()
+        public async Task TestGetMfaRequestCountSummaries()
         {
-            var mfaRequestSummaries = _reportingClient.GetMfaRequestCountSummariesAsync().Result;
+            var mfaRequestSummaries = await _reportingClient.GetMfaRequestCountSummariesAsync();
             Assert.NotNull(mfaRequestSummaries);
         }
 
         [Fact]
-        public void TestGetAuthenticationCount()
+        public async Task TestGetAuthenticationCount()
         {
-            var userCounts = _reportingClient.GetAuthenticationCountAsync().Result;
+            var userCounts = await _reportingClient.GetAuthenticationCountAsync();
             Assert.NotNull(userCounts);
         }
     }
