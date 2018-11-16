@@ -78,7 +78,7 @@ namespace GraphLite.Tests
             var extPropertyValue = DateTime.Now.ToString("yyMMddHHmmss");
             user.SetExtendedProperty(CustomPropertyName, extPropertyValue);
 
-            _client.UserUpdateAsync(user.ObjectId, user.ExtendedProperties).Wait();
+            await _client.UserUpdateAsync(user.ObjectId, user.ExtendedProperties);
             Assert.NotNull(user);
             Assert.Equal(extPropertyValue, user.GetExtendedProperty<string>(CustomPropertyName));
         }
@@ -96,7 +96,7 @@ namespace GraphLite.Tests
         {
             var r = await _client.UserGetAsync(_fixture.TestUserObjectId);
             r.SetExtendedProperty(CustomPropertyName, DateTime.Now.ToString("HHmmsstttt"));
-            _client.UserUpdateAsync(r.ObjectId, r.ExtendedProperties).Wait();
+            await _client.UserUpdateAsync(r.ObjectId, r.ExtendedProperties);
             Assert.NotNull(r);
         }
 

@@ -26,15 +26,16 @@ namespace GraphLite.Tests
                Config.Tenant, async resource => await GetAccessTokenAsync(resource));
 
             TestUser = CreateTestUser();
-            TestUser = Client.UserCreateAsync(TestUser).Result;
+            TestUser = Task.Run(() => Client.UserCreateAsync(TestUser)).Result;
 
             var group = CreateTestGroup();
-            group = Client.GroupCreateAsync(group).Result;
+            group = Task.Run(() => Client.GroupCreateAsync(group)).Result;
             TestGroupObjectId = group.ObjectId;
 
-            Client.GroupAddMemberAsync(group.ObjectId, TestUserObjectId).Wait();
+            Task.Run(() => Client.GroupAddMemberAsync(group.ObjectId, TestUserObjectId)).Wait();
         }
         private string AuthTokenEndpoint => $"https://login.windows.net/{Config.Tenant}/oauth2/token";
+
         private async Task<TokenWrapper> GetAccessTokenAsync(string resource)
         {
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, AuthTokenEndpoint);
@@ -67,6 +68,7 @@ namespace GraphLite.Tests
 
             return token;
         }
+
         private Group CreateTestGroup()
         {
             var group = new Group
@@ -113,11 +115,11 @@ namespace GraphLite.Tests
 
         public void Dispose()
         {
-            var testUser = Client.UserGetAsync(TestUserObjectId).Result;
+            var testUser = Task.Run(() => Client.UserGetAsync(TestUserObjectId)).Result;
             if (testUser != null)
-                Client.UserDeleteAsync(TestUserObjectId).Wait();
+                Task.Run(() => Client.UserDeleteAsync(TestUserObjectId)).Wait();
 
-            Client.GroupDeleteAsync(TestGroupObjectId).Wait();
+            Task.Run(() => Client.GroupDeleteAsync(TestGroupObjectId)).Wait();
         }
     }
 }
