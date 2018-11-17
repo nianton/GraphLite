@@ -1,4 +1,4 @@
-# GraphLite
+# ![logo](https://raw.githubusercontent.com/nianton/GraphLite/master/graphlite.png) GraphLite
 
 [![NuGet](https://img.shields.io/nuget/dt/GraphLite.svg)](https://www.nuget.org/packages/GraphLite/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
