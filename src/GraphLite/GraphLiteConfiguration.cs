@@ -32,6 +32,15 @@ namespace GraphLite
         public static string TenantGraphApiBaseUrl(string tenant) =>
             $"{AzureADGraphApiRoot}/{tenant}";
 
+
+        /// <summary>
+        /// Get the graph API base URL for the given tenant, eg: https://graph.windows.net/mytenant.onmicrosoft.com
+        /// </summary>
+        /// <param name="tenant">The tenant's identifier, eg: 'mytenant.onmicrosoft.com'</param>
+        public static string TenantB2cAdminApiBaseUrl(string tenant) =>
+            $"{AzureADGraphApiRoot}/{tenant}";
+
+
         /// <summary>
         /// Gets the authorization token url for the given tenant.
         /// </summary>

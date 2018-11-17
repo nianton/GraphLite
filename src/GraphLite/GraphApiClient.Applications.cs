@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -29,6 +30,31 @@ namespace GraphLite
 
             var result = await ExecuteRequest<ODataResponse<ExtensionProperty>>(HttpMethod.Get, $"applications/{appObjectId}/extensionProperties");
             return result.Value;
+        }
+
+        /// <summary>
+        /// Adds the application extension asynchronous.
+        /// </summary>
+        /// <param name="appObjectId">The application object identifier.</param>
+        /// <param name="extensionProperty">The extension property.</param>
+        /// <returns>The created extension property.</returns>
+        public async Task<ExtensionProperty> ApplicationAddExtensionPropertyAsync(string propertyName)
+        {
+            await EnsureInitAsync();
+            var propertyExists = _b2cExtensionsApplicationProperties.Any(exp => string.Equals(propertyName, exp.GetSimpleName(), StringComparison.OrdinalIgnoreCase));
+            if (propertyExists)
+                throw new InvalidOperationException($"Extension property named: '{propertyName}' already exists");
+
+            var extensionProperty = new ExtensionProperty
+            {
+                DataType = "String",
+                Name = propertyName,
+                TargetObjects = new List<string> { "User" }
+            };
+
+            var result = await ExecuteRequest<ExtensionProperty>(HttpMethod.Post, $"applications/{_b2cExtensionsObjectId}/extensionProperties", body: extensionProperty);
+            _b2cExtensionsApplicationProperties.Add(result);
+            return result;
         }
 
         /// <summary>

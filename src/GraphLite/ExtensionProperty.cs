@@ -4,6 +4,11 @@ namespace GraphLite
 {
     public partial class ExtensionProperty
     {
+        public ExtensionProperty()
+        {
+            ObjectType = "ExtensionProperty";
+        }
+
         /// <summary>
         /// Gets the simple property name of the instance.
         /// NOTE: The B2C internal extension property name has the format: 'extension_[B2C_APP_ID]_propertyName

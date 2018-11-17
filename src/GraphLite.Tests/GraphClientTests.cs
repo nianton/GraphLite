@@ -251,7 +251,7 @@ namespace GraphLite.Tests
                 }
             };
 
-            user.SetExtendedProperty("MyCustomName", "Nikos");
+            user.SetExtendedProperty("MyNonExistingProperty", "Nikos");
 
             await Assert.ThrowsAsync<InvalidOperationException>(() => _client.UserCreateAsync(user));
         }

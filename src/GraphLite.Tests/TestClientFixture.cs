@@ -42,6 +42,9 @@ namespace GraphLite.Tests
             var extProperties = await Client.GetApplicationExtensionsAsync(b2cApp.ObjectId);
             ExtensionPropertyName = extProperties.FirstOrDefault()?.GetSimpleName();
 
+            //var extProperty = await Client.ApplicationAddExtensionPropertyAsync("NewSuperProperty");
+            //ExtensionPropertyName = extProperty.GetSimpleName();
+
             TestUser = CreateTestUser();
             TestUser = await Client.UserCreateAsync(TestUser);
 

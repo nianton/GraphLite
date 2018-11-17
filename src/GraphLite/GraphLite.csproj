@@ -20,14 +20,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="Generation\EntityGenerator.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>EntityGenerator.tt</DependentUpon>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 
@@ -57,6 +49,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Update="Generation\B2cAdminEntityGenerator.tt">
+      <LastGenOutput>B2cAdminEntityGenerator.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
     <None Update="Generation\EntityGenerator.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>EntityGenerator.cs</LastGenOutput>
@@ -68,6 +64,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Generation\B2cAdminEntityGenerator.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>B2cAdminEntityGenerator.tt</DependentUpon>
+    </Compile>
     <Compile Update="Generation\EntityGenerator.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

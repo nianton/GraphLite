@@ -1,0 +1,286 @@
+﻿<#@ template debug="true" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Xml" #>
+<#@ assembly name="System.Xml.Linq" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Xml.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+	var graphMetadataUrl = "https://main.b2cadmin.ext.azure.com/api/$metadata";
+	var xdoc = XDocument.Load(graphMetadataUrl);
+	var ns = XNamespace.Get("http://docs.oasis-open.org/odata/ns/edm");
+	var schemaNode = xdoc.Descendants(ns + "Schema").First();
+	var schemaNamespace = schemaNode.Attribute("Namespace").Value;
+	var entities = schemaNode.Descendants(ns + "EntityType");
+	var entitiesToProcess = new HashSet<string> { "B2CPolicy", "IdentityProvider", "B2CUserAttribute", "TrustFrameworkPolicy", "TrustFrameworkKeySet" };
+	var referencedTypes = new HashSet<string>();
+	var templateHelper = new TemplateHelper(this);
+#>
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Linq;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
+using System.Net;
+using System.Net.Http;
+using System.Web;
+
+namespace GraphLite
+{
+<# foreach (var entityName in entitiesToProcess) { 
+	var entityNode = entities.Single(e => e.Attribute("Name").Value == entityName);
+	var propertyNodes = entityNode.Elements(ns + "Property");
+#>
+	
+	public partial class <#= entityName #><#= GetBaseType(entityNode, schemaNamespace) #>
+	{
+	<# foreach (var propertyNode in propertyNodes) { #>
+	[JsonProperty("<#= propertyNode.Attribute("Name").Value #>")]
+		public <#= GetTypeName(propertyNode, schemaNamespace, referencedTypes) #> <#= GetPropertyName(propertyNode) #> { get; set; }
+	<# } #>}
+<# } #>
+<# 
+	while (referencedTypes.Any()) {
+	var refTypes = referencedTypes.ToList();
+	referencedTypes.Clear();
+	foreach (var refTypeName in refTypes) { 
+		var complexElement = GetComplexTypeElement(refTypeName, schemaNode, ns);
+		var cPropertyNodes = complexElement.Elements(ns + "Property");
+#>
+	public partial class <#= refTypeName #>
+	{ 
+	<# foreach (var propertyNode in cPropertyNodes) { #>
+	[JsonProperty("<#= propertyNode.Attribute("Name").Value #>")]
+		public <#= GetTypeName(propertyNode, schemaNamespace, referencedTypes) #> <#= GetPropertyName(propertyNode) #> { get; set; }
+	<# } #>}
+
+<# }
+}#>
+	public partial class B2cAdminApiClient : BaseApiClient
+	{
+
+<#
+	var sets = new [] { "B2CPolicy", "IdentityProvider", "B2CUserAttribute" };
+	foreach (var entitySet in sets) {
+		var entitySetName = entitySet.Substring(0, 1).ToLower() + entitySet.Substring(1);
+#>
+        /// <summary>
+        /// Get a list of <#= Plural(entitySetName) #> asynchronously.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="top">How many items will included.</param>
+        /// <param name="skipToken">The skip token (returned from a previous query if not all items were included).</param>
+		public async Task<GraphList<<#= entitySet #>>> <#= entitySet #>GetListAsync(string query = null, int? top = null, string skipToken = null)
+		{
+			var qs = HttpUtility.ParseQueryString(query ?? string.Empty);
+			if (top != null) {
+				qs.Add("$top", $"{top}");
+			}
+
+			if (skipToken != null) {
+				qs.Add("$skipToken", $"X'{skipToken}'");
+			}
+
+			var result = await ExecuteRequest<ODataResponse<<#= entitySet #>>>(HttpMethod.Get, "<#= Plural(entitySetName) #>", qs.ToString());
+            var graphList = new GraphList<<#= entitySet #>>(result.Value, result.GetSkipToken());
+			return graphList;
+		}
+
+		/// <summary>
+        /// Get a list of <#= Plural(entitySetName) #> asynchronously.
+        /// </summary>
+        /// <param name="query">The OData query.</param>
+		public async Task<GraphList<<#= entitySet #>>> <#= entitySet #>GetListAsync(ODataQuery<<#= entitySet #>> query)
+		{
+			var qs = query?.ToString() ?? string.Empty;
+			var result = await ExecuteRequest<ODataResponse<<#= entitySet #>>>(HttpMethod.Get, "<#= Plural(entitySetName) #>", qs);
+            var graphList = new GraphList<<#= entitySet #>>(result.Value, result.GetSkipToken());
+			return graphList;
+		}
+
+		/// <summary>
+        /// Get all <#= Plural(entitySetName) #> asynchronously (use with caution).
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="itemsPerPage">How many items will included per page.</param>
+        /// <param name="progresss">The progress reporter, will be called for every page of results fetched.</param>
+		public async Task<List<<#= entitySet #>>> <#= entitySet #>GetAllAsync(string query = null, int? itemsPerPage = null, IProgress<IList<<#= entitySet #>>> progress = null) 
+		{
+			var allItems = new List<<#= entitySet #>>();
+
+			var qs = HttpUtility.ParseQueryString(query ?? string.Empty);
+			if (itemsPerPage != null) {
+				qs.Add("$top", $"{itemsPerPage}");
+			}
+			
+			var result = await ExecuteRequest<ODataResponse<<#= entitySet #>>>(HttpMethod.Get, "<#= Plural(entitySetName) #>", qs.ToString());
+			
+			progress?.Report(result.Value);
+			allItems.AddRange(result.Value);
+			
+			while (result.OdataNextLink != null) {				
+				qs["$skiptoken"] = result.GetSkipToken();				
+				result = await ExecuteRequest<ODataResponse<<#= entitySet #>>>(HttpMethod.Get, "<#= Plural(entitySetName) #>", qs.ToString());
+			
+				progress?.Report(result.Value);
+				allItems.AddRange(result.Value);
+			}
+
+			return allItems;
+		}
+	
+		/// <summary>
+        /// Get a list of <#= Plural(entitySetName) #> asynchronously for the specified identifiers.
+        /// </summary>
+        /// <param name="<#= entitySet.ToLower() #>ObjectIds">The <#= entitySet.ToLower() #> object identifiers.</param>
+		public async Task<List<<#= entitySet #>>> <#= entitySet #>GetByObjectIdsAsync(params string[] <#= entitySet.ToLower() #>ObjectIds) 
+		{
+			var body = new
+            {
+                objectIds = <#= entitySet.ToLower() #>ObjectIds,
+                types = new[] { "<#= entitySet.ToLower() #>" }
+            };
+
+			var result = await ExecuteRequest<ODataResponse<<#= entitySet #>>>(HttpMethod.Post, "getObjectsByObjectIds", body: body);
+			return result.Value;
+		}
+		
+		/// <summary>
+        /// Gets a specific <#= entitySet #> instance.
+        /// </summary>
+        /// <param name="<#= entitySet.ToLower() #>ObjectId">The <#= entitySet.ToLower() #>'s object identifier.</param>
+		public async Task<<#= entitySet #>> <#= entitySet #>GetAsync(string <#= entitySet.ToLower() #>ObjectId)
+		{
+			try 
+			{
+				var result = await ExecuteRequest<<#= entitySet #>>(HttpMethod.Get, $"<#= Plural(entitySetName) #>/{<#= entitySet.ToLower() #>ObjectId}");            
+				return result;
+			}
+			catch (GraphApiException gaex) 
+			{
+				if (gaex.StatusCode == HttpStatusCode.NotFound) 
+				{
+					return null;
+				}
+
+				throw;
+			}
+		}
+
+		/// <summary>
+        /// Creates a <#= entitySet #> instance.
+        /// </summary>
+        /// <param name="<#= entitySet.ToLower() #>">The <#= entitySet #> to be created.</param>
+		public async Task<<#= entitySet #>> <#= entitySet #>CreateAsync(<#= entitySet #> <#= entitySet.ToLower() #>)
+		{
+			<# if (entitySet == "User") { #>await ValidateUserAsync(<#= entitySet.ToLower() #>);
+			<# } #>var result = await ExecuteRequest<<#= entitySet #>>(HttpMethod.Post, $"<#= Plural(entitySetName) #>", body: <#= entitySet.ToLower() #>);
+			return result;
+		}
+		
+		/// <summary>
+        /// Updates a <#= entitySet #> instance.
+        /// </summary>
+		/// <param name="<#= entitySet.ToLower() #>ObjectId">The <#= entitySet.ToLower() #>'s object identifier.</param>
+        /// <param name="modelChanges">The object containing the partial updates for the given <#= entitySet #>.</param>
+		public async Task <#= entitySet #>UpdateAsync(string <#= entitySet.ToLower() #>ObjectId, object modelChanges)
+		{
+			var result = await ExecuteRequest(HttpMethodPatch, $"<#= Plural(entitySetName) #>/{<#= entitySet.ToLower() #>ObjectId}", body: modelChanges);
+		}
+
+		/// <summary>
+        /// Deletes a <#= entitySet #> instance.
+        /// </summary>
+		/// <param name="<#= entitySet.ToLower() #>ObjectId">The <#= entitySet.ToLower() #>'s object identifier.</param>
+		public async Task <#= entitySet #>DeleteAsync(string <#= entitySet.ToLower() #>ObjectId) 
+		{
+			var result = await ExecuteRequest(HttpMethod.Delete, $"<#= Plural(entitySetName) #>/{<#= entitySet.ToLower() #>ObjectId}");
+		}
+
+<#
+	}
+#>
+	}
+}
+<#+
+	public class TemplateHelper 
+	{
+		private readonly object _template;
+
+		public TemplateHelper(object template) 
+		{
+			_template = template;
+		}
+	}
+
+	public string GetBaseType(XElement entityElement, string schemaNamespace) 
+	{
+		var baseType  = entityElement.Attribute("BaseType")?.Value.Replace($"{schemaNamespace}.", string.Empty);
+		return baseType != null ? $" : {baseType}" : string.Empty;
+	}
+
+	public string GetPropertyName(XElement propertyElement) 
+	{
+		var name = propertyElement.Attribute("Name").Value;
+		return name.Substring(0, 1).ToUpper() + name.Substring(1);
+	}
+
+	public string GetTypeName(XElement propertyElement, string schemaNamespace, HashSet<string> refTypes = null) 
+	{
+		var typeName = propertyElement.Attribute("Type").Value;
+		var isCollection = typeName.StartsWith("Collection(");
+		if (isCollection)
+			typeName = typeName.Replace("Collection(", string.Empty).TrimEnd(')');
+
+		var isReferenceType = typeName.Contains(schemaNamespace);
+		if (isReferenceType) {			
+			typeName = typeName.Replace($"{schemaNamespace}.", string.Empty);
+			refTypes?.Add(typeName);
+			return isCollection ? $"List<{typeName}>" : typeName;
+		}
+
+		var notNullable = propertyElement.Attribute("Nullable")?.Value == "false";
+		
+		var returnedTypeName = "";
+		switch (typeName) 
+		{
+			case "Edm.Boolean":
+				returnedTypeName = notNullable ? "bool" : "bool?";
+				break;
+			case "Edm.String":
+				returnedTypeName = "string";
+				break;
+			case "Edm.DateTime":
+				returnedTypeName = notNullable ? "DateTimeOffset" : "DateTimeOffset?";
+				break;
+			case "Edm.Int32":
+				returnedTypeName = notNullable ? "int" : "int?";
+				break;
+			case "Edm.Guid":
+				returnedTypeName = notNullable ? "Guid" : "Guid?";
+				break;
+			default:
+				returnedTypeName = "object";
+				break;
+		}
+
+		return isCollection ? $"List<{returnedTypeName}>" : returnedTypeName;
+	}
+
+	public XElement GetComplexTypeElement(string typeName, XElement schemaNode, XNamespace ns) 
+	{
+		return schemaNode.Descendants(ns + "ComplexType")
+			.First(e => e.Attribute("Name").Value == typeName);
+	}
+
+	public string Plural(string entitySet) 
+	{
+		if (entitySet.EndsWith("y"))
+			return entitySet.TrimEnd('y') + "ies";
+		return entitySet + "s";
+	}
+#>
