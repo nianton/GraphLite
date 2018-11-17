@@ -6,12 +6,13 @@ using Xunit;
 
 namespace GraphLite.Tests
 {
-    public class GraphClientQueryTests : IClassFixture<TestFixture>
+    [Collection(TestFixtureCollection.Name)]
+    public class GraphClientQueryTests
     {
         private readonly GraphApiClient _client;
-        private readonly TestFixture _fixture;
+        private readonly TestClientFixture _fixture;
 
-        public GraphClientQueryTests(TestFixture fixture)
+        public GraphClientQueryTests(TestClientFixture fixture)
         {
             _fixture = fixture;
             _client = fixture.Client;
@@ -45,12 +46,13 @@ namespace GraphLite.Tests
         }
 
 
-        [Fact]
+        [SkippableFact]
         public async Task TestQueryByExtensionProperty()
         {
-            var userQuery = await _client.UserQueryCreateAsync();
             var extPropertyName = _fixture.ExtensionPropertyName;
+            Skip.If(string.IsNullOrEmpty(extPropertyName), "No extension property defined");
 
+            var userQuery = await _client.UserQueryCreateAsync();
             userQuery
                 .WhereExtendedProperty(extPropertyName, "1235453", ODataOperator.Equals)
                 .Where(u => u.GivenName, "nikos", ODataOperator.GreaterThanEquals)
@@ -72,12 +74,12 @@ namespace GraphLite.Tests
             Assert.Equal(_fixture.TestUserObjectId, user.ObjectId);
         }
 
-
-
-        [Fact]
+        [SkippableFact]
         public async Task TestFetchByExtensionProperty()
         {
             var extPropertyName = _fixture.ExtensionPropertyName;
+            Skip.If(string.IsNullOrEmpty(extPropertyName), "No extension property defined");
+
             var userQuery = await _client.UserQueryCreateAsync();
             userQuery
                 .WhereExtendedProperty(extPropertyName, _fixture.TestUser.GetExtendedProperties()[extPropertyName], ODataOperator.Equals);
@@ -88,10 +90,12 @@ namespace GraphLite.Tests
         }
 
 
-        [Fact]
+        [SkippableFact]
         public async Task TestFetchByExtensionPropertyGreaterThan()
         {
             var extPropertyName = _fixture.ExtensionPropertyName;
+            Skip.If(string.IsNullOrEmpty(extPropertyName), "No extension property defined");
+
             var userQuery = await _client.UserQueryCreateAsync();
             userQuery.WhereExtendedProperty(extPropertyName, "1", ODataOperator.GreaterThan);
 

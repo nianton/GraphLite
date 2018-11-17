@@ -6,12 +6,13 @@ using Xunit;
 
 namespace GraphLite.Tests
 {
-    public class GraphClientReportingTests : IClassFixture<TestFixture>
+    [Collection(TestFixtureCollection.Name)]
+    public class GraphClientReportingTests
     {
-        readonly TestFixture _fixture;
+        readonly TestClientFixture _fixture;
         readonly IReportingClient _reportingClient;
 
-        public GraphClientReportingTests(TestFixture fixture)
+        public GraphClientReportingTests(TestClientFixture fixture)
         {
             _fixture = fixture;
             _reportingClient = fixture.Client.Reporting;

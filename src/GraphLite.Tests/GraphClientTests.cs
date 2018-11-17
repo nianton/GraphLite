@@ -8,13 +8,14 @@ using Xunit;
 namespace GraphLite.Tests
 {
     [TestCaseOrderer("GraphLite.Tests.TestNameCaseOrderer", "GraphLite.Tests")]
-    public class GraphClientTests : IClassFixture<TestFixture>
+    [Collection(TestFixtureCollection.Name)]
+    public class GraphClientTests
     {
         private readonly GraphApiClient _client;
-        private readonly TestFixture _fixture;
+        private readonly TestClientFixture _fixture;
         private string _extensionPropertyName;
 
-        public GraphClientTests(TestFixture fixture)
+        public GraphClientTests(TestClientFixture fixture)
         {
             _fixture = fixture;
             _client = fixture.Client;
@@ -76,12 +77,20 @@ namespace GraphLite.Tests
         public async Task TestUpdateSpecificUser()
         {
             var user = await _client.UserGetAsync(_fixture.TestUserObjectId);
-            var extPropertyValue = DateTime.Now.ToString("yyMMddHHmmss");
-            user.SetExtendedProperty(_extensionPropertyName, extPropertyValue);
+            var postalCodeValue = DateTime.Now.ToString("yyMMddHHmmss");
+            var telephoneNumberValue = "123334524352345";
+            var changes = new
+            {
+                PostalCode = postalCodeValue,
+                TelephoneNumber = telephoneNumberValue
+            };
 
-            await _client.UserUpdateAsync(user.ObjectId, user.ExtendedProperties);
-            Assert.NotNull(user);
-            Assert.Equal(extPropertyValue, user.GetExtendedProperty<string>(_extensionPropertyName));
+            await _client.UserUpdateAsync(user.ObjectId, changes);
+            var updatedUser = await _client.UserGetAsync(user.ObjectId);
+
+            Assert.NotNull(updatedUser);
+            Assert.Equal(postalCodeValue, updatedUser.PostalCode);
+            Assert.Equal(telephoneNumberValue, updatedUser.TelephoneNumber);
         }
 
         [Fact]
@@ -90,15 +99,6 @@ namespace GraphLite.Tests
             var user = await _client.UserGetBySigninNameAsync(_fixture.TestUser.SignInNames.First().Value);
             Assert.NotNull(user);
             Assert.Equal(_fixture.TestUserObjectId, user.ObjectId);
-        }
-
-        [Fact]
-        public async Task TestUpdateSpecificUserAlt()
-        {
-            var r = await _client.UserGetAsync(_fixture.TestUserObjectId);
-            r.SetExtendedProperty(_extensionPropertyName, DateTime.Now.ToString("HHmmsstttt"));
-            await _client.UserUpdateAsync(r.ObjectId, r.ExtendedProperties);
-            Assert.NotNull(r);
         }
 
         [Fact]
