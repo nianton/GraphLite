@@ -78,7 +78,7 @@ namespace GraphLite.Tests
         {
             var user = await _client.UserGetAsync(_fixture.TestUserObjectId);
             var postalCodeValue = DateTime.Now.ToString("yyMMddHHmmss");
-            var telephoneNumberValue = "123334524352345";
+            var telephoneNumberValue = DateTime.Now.ToString("ssyyMMddHHmm");
             var changes = new
             {
                 PostalCode = postalCodeValue,
@@ -91,6 +91,59 @@ namespace GraphLite.Tests
             Assert.NotNull(updatedUser);
             Assert.Equal(postalCodeValue, updatedUser.PostalCode);
             Assert.Equal(telephoneNumberValue, updatedUser.TelephoneNumber);
+        }
+
+        [Fact]
+        public async Task TestUpdateUserStronglyTyped()
+        {
+            var user = await _client.UserGetAsync(_fixture.TestUserObjectId);
+            var extendedPropertyName = _fixture.ExtensionPropertyName;
+            var hasExtendedProperty = !string.IsNullOrEmpty(_fixture.ExtensionPropertyName);
+            var postalCodeValue = DateTime.Now.ToString("yyMMddHHmmss");
+            var telephoneNumberValue = DateTime.Now.ToString("ssyyMMddHHmm");
+            var extendedPropertyValue = DateTime.Now.ToString("ttssyyMMddHHmm");
+
+            await _client.UserUpdateAsync(user, entity =>
+            {
+                entity.TelephoneNumber = telephoneNumberValue;
+                entity.PostalCode = postalCodeValue;
+
+                if (hasExtendedProperty)
+                    entity.SetExtendedProperty(_fixture.ExtensionPropertyName, extendedPropertyValue);
+            });
+
+            var updatedUser = await _client.UserGetAsync(user.ObjectId);
+            Assert.NotNull(updatedUser);
+            Assert.Equal(postalCodeValue, updatedUser.PostalCode);
+            Assert.Equal(telephoneNumberValue, updatedUser.TelephoneNumber);
+            if (hasExtendedProperty)
+                Assert.Equal(extendedPropertyValue, updatedUser.GetExtendedProperty<string>(extendedPropertyName));
+        }
+
+        [Fact]
+        public async Task TestUpdateUserStronglyTypedByObjectId()
+        {
+            var extendedPropertyName = _fixture.ExtensionPropertyName;
+            var hasExtendedProperty = !string.IsNullOrEmpty(_fixture.ExtensionPropertyName);
+            var postalCodeValue = DateTime.Now.ToString("yyMMddHHmmss");
+            var telephoneNumberValue = DateTime.Now.ToString("ssyyMMddHHmm");
+            var extendedPropertyValue = DateTime.Now.ToString("ttssyyMMddHHmm");
+
+            await _client.UserUpdateAsync(_fixture.TestUserObjectId, entity =>
+            {
+                entity.TelephoneNumber = telephoneNumberValue;
+                entity.PostalCode = postalCodeValue;
+
+                if (hasExtendedProperty)
+                    entity.SetExtendedProperty(_fixture.ExtensionPropertyName, extendedPropertyValue);
+            });
+
+            var updatedUser = await _client.UserGetAsync(_fixture.TestUserObjectId);
+            Assert.NotNull(updatedUser);
+            Assert.Equal(postalCodeValue, updatedUser.PostalCode);
+            Assert.Equal(telephoneNumberValue, updatedUser.TelephoneNumber);
+            if (hasExtendedProperty)
+                Assert.Equal(extendedPropertyValue, updatedUser.GetExtendedProperty<string>(extendedPropertyName));
         }
 
         [Fact]
