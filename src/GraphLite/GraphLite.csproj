@@ -20,14 +20,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="GraphApiClient.Me.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="GraphApiClient.Me.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 

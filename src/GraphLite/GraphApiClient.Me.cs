@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,7 +9,6 @@ namespace GraphLite
 {
     public partial class GraphApiClient
     {
-
         public async Task MeChangePassword(ChangePasswordRequest passwordRequest)
         {
             var resource = $"me/changePassword";
