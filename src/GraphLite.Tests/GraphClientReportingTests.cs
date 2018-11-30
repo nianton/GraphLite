@@ -1,46 +1,55 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace GraphLite.Tests
 {
-    public class GraphClientReportingTests : IClassFixture<TestFixture>
+    [Collection(TestFixtureCollection.Name)]
+    public class GraphClientReportingTests
     {
-        readonly TestFixture _fixture;
+        readonly TestClientFixture _fixture;
         readonly IReportingClient _reportingClient;
 
-        public GraphClientReportingTests(TestFixture fixture)
+        public GraphClientReportingTests(TestClientFixture fixture)
         {
             _fixture = fixture;
             _reportingClient = fixture.Client.Reporting;
         }
 
         [Fact]
-        public void TestTenantUserCounts()
+        public async Task TestTenantUserCounts()
         {
-            var userCounts = _reportingClient.GetTenantUserCountSummariesAsync().Result;
+            var userCounts = await _reportingClient.GetTenantUserCountSummariesAsync();
             Assert.NotEmpty(userCounts);
         }
 
         [Fact]
-        public void TestGetDailySummariesCounts()
+        public async Task TestGetDailySummariesCounts()
         {
-            var dailySummaries = _reportingClient.GetAuthenticationCountSummariesAsync().Result;
-            Assert.NotEmpty(dailySummaries);
+            var dailySummaries = await _reportingClient.GetAuthenticationCountSummariesAsync();
+            Assert.NotNull(dailySummaries);
         }
 
         [Fact]
-        public void TestGetMfaRequestCountSummaries()
+        public async Task TestGetMfaRequestCount()
         {
-            var mfaRequestSummaries = _reportingClient.GetMfaRequestCountSummariesAsync().Result;
+            var mfaRequestCounts = await _reportingClient.GetMfaRequestCountAsync();
+            Assert.NotNull(mfaRequestCounts);
+        }
+
+        [Fact]
+        public async Task TestGetMfaRequestCountSummaries()
+        {
+            var mfaRequestSummaries = await _reportingClient.GetMfaRequestCountSummariesAsync();
             Assert.NotNull(mfaRequestSummaries);
         }
 
         [Fact]
-        public void TestGetAuthenticationCount()
+        public async Task TestGetAuthenticationCount()
         {
-            var userCounts = _reportingClient.GetAuthenticationCountAsync().Result;
+            var userCounts = await _reportingClient.GetAuthenticationCountAsync();
             Assert.NotNull(userCounts);
         }
     }

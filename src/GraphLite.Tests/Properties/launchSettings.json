@@ -1,12 +1,1 @@
-{
-  "profiles": {
-    "Refactor.ActiveDirectoryB2C.Tests": {
-      "commandName": "Project",
-      "environmentVariables": {
-        "b2c:ApplicationSecret": "asdasd",
-        "b2c:ApplicationId": "Value",
-        "b2c:Tenant": "Tenant"
-      }
-    }
-  }
-}
+{}

@@ -1,10 +1,11 @@
-﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
 <#@ assembly name="System.Core" #>
 <#@ assembly name="System.Xml" #>
 <#@ assembly name="System.Xml.Linq" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Xml.Linq" #>
 <#@ import namespace="System.Text" #>
+<#@ import namespace="System.IO" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ output extension=".cs" #>
 <#
@@ -17,32 +18,24 @@
 	var entitiesToProcess = new HashSet<string> { "DirectoryObject", "User", "ExtensionProperty", "Application", "Group" };
 	var referencedTypes = new HashSet<string>();
 	var templateHelper = new TemplateHelper(this);
+	foreach (var entityName in entitiesToProcess) { 
+		var entityNode = entities.Single(e => e.Attribute("Name").Value == entityName);
+		var propertyNodes = entityNode.Elements(ns + "Property");
 #>
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net;
-using System.Net.Http;
-using System.Web;
 
 namespace GraphLite
-{
-<# foreach (var entityName in entitiesToProcess) { 
-	var entityNode = entities.Single(e => e.Attribute("Name").Value == entityName);
-	var propertyNodes = entityNode.Elements(ns + "Property");
-#>
-	
+{	
 	public partial class <#= entityName #><#= GetBaseType(entityNode, schemaNamespace) #>
 	{
 	<# foreach (var propertyNode in propertyNodes) { #>
 	[JsonProperty("<#= propertyNode.Attribute("Name").Value #>")]
 		public <#= GetTypeName(propertyNode, schemaNamespace, referencedTypes) #> <#= GetPropertyName(propertyNode) #> { get; set; }
 	<# } #>}
-<# } #>
+}<# SaveOutput(entityName + ".generated.cs");
+} #>
 <# 
 	while (referencedTypes.Any()) {
 	var refTypes = referencedTypes.ToList();
@@ -50,16 +43,33 @@ namespace GraphLite
 	foreach (var refTypeName in refTypes) { 
 		var complexElement = GetComplexTypeElement(refTypeName, schemaNode, ns);
 		var cPropertyNodes = complexElement.Elements(ns + "Property");
-#>
+#>using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+
+namespace GraphLite
+{
 	public partial class <#= refTypeName #>
 	{ 
 	<# foreach (var propertyNode in cPropertyNodes) { #>
 	[JsonProperty("<#= propertyNode.Attribute("Name").Value #>")]
 		public <#= GetTypeName(propertyNode, schemaNamespace, referencedTypes) #> <#= GetPropertyName(propertyNode) #> { get; set; }
 	<# } #>}
+}<# 
+SaveOutput(refTypeName + ".generated.cs");
+}
+}
 
-<# }
-}#>
+#>
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web;
+
+namespace GraphLite
+{
 	public partial class GraphApiClient
 	{
 
@@ -187,8 +197,45 @@ namespace GraphLite
         /// </summary>
 		/// <param name="<#= entitySet.ToLower() #>ObjectId">The <#= entitySet.ToLower() #>'s object identifier.</param>
         /// <param name="modelChanges">The object containing the partial updates for the given <#= entitySet #>.</param>
+		[Obsolete("Use the newly introduced strongly typed alternatives")]
 		public async Task <#= entitySet #>UpdateAsync(string <#= entitySet.ToLower() #>ObjectId, object modelChanges)
 		{
+			var result = await ExecuteRequest(HttpMethodPatch, $"<#= entitySetName #>s/{<#= entitySet.ToLower() #>ObjectId}", body: modelChanges);
+		}
+
+		/// <summary>
+        /// Updates a <#= entitySet #> instance.
+        /// </summary>
+		/// <param name="<#= entitySet.ToLower() #>ObjectId">The <#= entitySet.ToLower() #>'s object identifier.</param>
+        /// <param name="modelChanges">The object containing the partial updates for the given <#= entitySet #>.</param>
+		public async Task <#= entitySet #>UpdateAsync(string <#= entitySet.ToLower() #>ObjectId, Action<<#= entitySet #>> action)
+		{
+			var <#= entitySet.ToLower() #> = new <#= entitySet #>();			
+			if (<#= entitySet.ToLower() #> is IExtensionsApplicationAware extAppAware)
+            {
+                await EnsureInitAsync();
+                extAppAware.SetExtensionsApplicationId(_b2cExtensionsApplicationId);
+            }
+
+			var modelChanges = <#= entitySet.ToLower() #>.Changes(action);
+			var result = await ExecuteRequest(HttpMethodPatch, $"<#= entitySetName #>s/{<#= entitySet.ToLower() #>ObjectId}", body: modelChanges);
+		}
+
+		/// <summary>
+        /// Updates a <#= entitySet #> instance.
+        /// </summary>
+		/// <param name="<#= entitySet.ToLower() #>ObjectId">The <#= entitySet.ToLower() #>'s object identifier.</param>
+        /// <param name="modelChanges">The object containing the partial updates for the given <#= entitySet #>.</param>
+		public async Task <#= entitySet #>UpdateAsync(<#= entitySet #> <#= entitySet.ToLower() #>, Action<<#= entitySet #>> action)
+		{
+			var <#= entitySet.ToLower() #>ObjectId = <#= entitySet.ToLower() #>.ObjectId;
+			if (<#= entitySet.ToLower() #> is IExtensionsApplicationAware extAppAware)
+            {
+                await EnsureInitAsync();
+                extAppAware.SetExtensionsApplicationId(_b2cExtensionsApplicationId);
+            }
+
+			var modelChanges = <#= entitySet.ToLower() #>.Changes(action);
 			var result = await ExecuteRequest(HttpMethodPatch, $"<#= entitySetName #>s/{<#= entitySet.ToLower() #>ObjectId}", body: modelChanges);
 		}
 
@@ -205,7 +252,7 @@ namespace GraphLite
 	}
 #>
 	}
-}
+}<# SaveOutput("GraphApiClient.generated.cs"); #>
 <#+
 	public class TemplateHelper 
 	{
@@ -275,5 +322,13 @@ namespace GraphLite
 	{
 		return schemaNode.Descendants(ns + "ComplexType")
 			.First(e => e.Attribute("Name").Value == typeName);
+	}
+
+	private void SaveOutput(string outputFileName) 
+	{
+		string templateDirectory = Path.GetDirectoryName(Host.TemplateFile);
+		string outputFilePath = Path.Combine(templateDirectory, outputFileName);
+		File.WriteAllText(outputFilePath, this.GenerationEnvironment.ToString()); 
+		GenerationEnvironment.Remove(0, this.GenerationEnvironment.Length);
 	}
 #>

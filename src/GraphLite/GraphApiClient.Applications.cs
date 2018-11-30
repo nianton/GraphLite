@@ -24,6 +24,9 @@ namespace GraphLite
         /// <returns>The list of extension properties defined.</returns>
         public async Task<List<ExtensionProperty>> GetApplicationExtensionsAsync(string appObjectId)
         {
+            if (string.Equals(appObjectId, _b2cExtensionsObjectId) && _b2cExtensionsApplicationProperties != null)
+                return _b2cExtensionsApplicationProperties.ToList();
+
             var result = await ExecuteRequest<ODataResponse<ExtensionProperty>>(HttpMethod.Get, $"applications/{appObjectId}/extensionProperties");
             return result.Value;
         }
@@ -38,6 +41,7 @@ namespace GraphLite
             {
                 var extensionsApp = await GetB2cExtensionsApplicationAsync();
                 _b2cExtensionsApplicationId = extensionsApp.AppId;
+                _b2cExtensionsObjectId = extensionsApp.ObjectId;
                 _b2cExtensionsApplicationProperties = await GetApplicationExtensionsAsync(extensionsApp.ObjectId);
             }
 

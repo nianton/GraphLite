@@ -22,8 +22,7 @@ namespace GraphLite
         StartsWith,
         EndsWith,
         Null,
-        NotNull,
-        In
+        NotNull
     }
 
     /// <summary>
@@ -235,7 +234,6 @@ namespace GraphLite
                     return "eq null";
                 case ODataOperator.NotNull:
                     return "ne null";
-                case ODataOperator.In:
                 default:
                     return string.Empty;
             }

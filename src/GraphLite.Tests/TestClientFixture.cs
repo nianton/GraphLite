@@ -1,12 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace GraphLite.Tests
 {
-    public class TestFixture : IDisposable
+    public class TestClientFixture : IDisposable
     {
+        public TestClientFixture()
+        {
+            Config = TestsConfig.Create();
+
+            // Wrapped in Task.Run as non-deadlocking synchronous call.
+            Task.Run(InitAsync).Wait();
+        }
+
         public TestsConfig Config { get; set; }
+
         public GraphApiClient Client { get; set; }
 
         public string TestUserObjectId => TestUser.ObjectId;
@@ -15,24 +26,30 @@ namespace GraphLite.Tests
 
         public string TestGroupObjectId { get; set; }
 
-        public TestFixture()
-        {
-            Config = TestsConfig.Create();
+        public string ExtensionPropertyName { get; set; }
 
+        private async Task InitAsync()
+        {
             Client = new GraphApiClient(
                 Config.ApplicationId,
                 Config.ApplicationSecret,
                 Config.Tenant
             );
 
+            await Client.EnsureInitAsync();
+            var b2cApp = await Client.GetB2cExtensionsApplicationAsync();
+
+            var extProperties = await Client.GetApplicationExtensionsAsync(b2cApp.ObjectId);
+            ExtensionPropertyName = extProperties.FirstOrDefault()?.GetSimpleName();
+
             TestUser = CreateTestUser();
-            TestUser = Client.UserCreateAsync(TestUser).Result;
+            TestUser = await Client.UserCreateAsync(TestUser);
 
             var group = CreateTestGroup();
-            group = Client.GroupCreateAsync(group).Result;
+            group = await Client.GroupCreateAsync(group);
             TestGroupObjectId = group.ObjectId;
 
-            Client.GroupAddMemberAsync(group.ObjectId, TestUserObjectId).Wait();
+            await Client.GroupAddMemberAsync(group.ObjectId, TestUserObjectId);
         }
 
         private Group CreateTestGroup()
@@ -64,7 +81,7 @@ namespace GraphLite.Tests
                      new SignInName()
                      {
                          Type = "emailAddress",
-                         Value = $"nian.t.o.n-{id}@gmail.com"
+                         Value = $"testuser-{id}@gmail.com"
                      }
                 },
                 PasswordProfile = new PasswordProfile
@@ -75,17 +92,34 @@ namespace GraphLite.Tests
                 }
             };
 
-            user.SetExtendedProperty("TaxRegistrationNumber", "123123123");
+            if (!string.IsNullOrEmpty(ExtensionPropertyName))
+                user.SetExtendedProperty(ExtensionPropertyName, "123123123");
+
             return user;
+        }
+
+        private async Task DisposeAsync()
+        {
+            var testUser = await Client.UserGetAsync(TestUserObjectId);
+            if (testUser != null)
+                await Client.UserDeleteAsync(TestUserObjectId);
+
+            await Client.GroupDeleteAsync(TestGroupObjectId);
         }
 
         public void Dispose()
         {
-            var testUser = Client.UserGetAsync(TestUserObjectId).Result;
-            if (testUser != null)
-                Client.UserDeleteAsync(TestUserObjectId).Wait();
-
-            Client.GroupDeleteAsync(TestGroupObjectId).Wait();
+            // Wrapped in Task.Run as non-deadlocking synchronous call.
+            Task.Run(DisposeAsync).Wait();
         }
+    }
+
+    [CollectionDefinition(Name)]
+    public class TestFixtureCollection : ICollectionFixture<TestClientFixture>
+    {
+        public const string Name = "TestClientCollection";
+        // This class has no code, and is never created. Its purpose is simply
+        // to be the place to apply [CollectionDefinition] and all the
+        // ICollectionFixture<> interfaces.
     }
 }

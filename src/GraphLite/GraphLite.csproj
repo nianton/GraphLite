@@ -14,18 +14,10 @@
     <RepositoryType>Git</RepositoryType>
     <PackageTags>AAD B2C, Graph, GraphAPI, Graph API Client, Azure Active Directory B2C, AAD-B2C, AADB2C</PackageTags>
     <Description>Lightweight Graph API client for the user management and reporting needs of a AAD B2C tenant.</Description>
-    <PackageReleaseNotes>Include support for .NET 4.6.1 (less dependencies) in addition to .NET 4.5 and .NET Standard 2.0</PackageReleaseNotes>
+    <PackageReleaseNotes>Ability to construct a GraphApiClient with an external authentication callback was added, when relying on an external library for AAD authentication like ADAL.</PackageReleaseNotes>
     <PackageIconUrl>https://raw.githubusercontent.com/nianton/GraphLite/master/graphlite.png</PackageIconUrl>
-    <Version>1.2.2</Version>
+    <Version>1.3.0</Version>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="Generation\EntityGenerator.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>EntityGenerator.tt</DependentUpon>
-    </None>
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
@@ -57,9 +49,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="Generation\EntityGenerator.tt">
+    <None Update="Generation\_EntityGenerator.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>EntityGenerator.cs</LastGenOutput>
+      <LastGenOutput>_EntityGenerator.cs</LastGenOutput>
     </None>
   </ItemGroup>
 
@@ -68,10 +60,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Generation\EntityGenerator.cs">
+    <Compile Update="Generation\_EntityGenerator.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>EntityGenerator.tt</DependentUpon>
+      <DependentUpon>_EntityGenerator.tt</DependentUpon>
     </Compile>
   </ItemGroup>
 

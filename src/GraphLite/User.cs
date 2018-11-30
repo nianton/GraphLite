@@ -26,6 +26,9 @@ namespace GraphLite
         [JsonProperty("thumbnailPhoto@odata.mediaContentType")]
         public string ThumbnailContentType { get; set; }
 
+        [JsonProperty("thumbnailPhoto@odata.mediaEditLink")]
+        public string ThumbnailEditLink { get; set; }
+
         [JsonExtensionData]
         public IDictionary<string, JToken> ExtendedProperties { get; set; }
 
@@ -46,6 +49,7 @@ namespace GraphLite
                 ExtendedProperties = new Dictionary<string, JToken>();
 
             ExtendedProperties[$"{GetExtendedPropertyPrefix()}{name}"] = JToken.FromObject(value);
+            
         }
 
         public TValue GetExtendedProperty<TValue>(string name)
